@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yönetici Paneli</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        .timeline {
+            display: grid;
+            grid-template-columns: 200px repeat(9, 1fr);
+            gap: 1px;
+            background-color: #dee2e6;
+            border: 1px solid #dee2e6;
+            margin-bottom: 1rem;
+        }
+
+        .timeline-header {
+            background-color: #f8f9fa;
+            padding: 0.5rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .timeline-employee {
+            background-color: #fff;
+            padding: 0.5rem;
+            border-right: 1px solid #dee2e6;
+        }
+
+        .timeline-slot {
+            background-color: #fff;
+            height: 50px;
+            position: relative;
+        }
+
+        .work-bar {
+            position: absolute;
+            height: 30px;
+            top: 10px;
+            background-color: #ffc107;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .work-bar.completed {
+            background-color: #28a745;
+        }
+
+        .work-bar.in-progress {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .stats-card {
+            transition: all 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 1000;
+            pointer-events: none;
+            display: none;
+        }
+
+        .employee-card {
+            transition: all 0.3s ease;
+        }
+
+        .employee-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .employee-actions {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .employee-card:hover .employee-actions {
+            opacity: 1;
+        }
+
+        .work-progress {
+            height: 4px;
+            width: 100%;
+            background-color: #e9ecef;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .work-progress .progress-bar {
+            height: 100%;
+            background-color: #ffc107;
+            transition: width 0.3s ease;
+        }
+
+        .work-progress .progress-bar.completed {
+            background-color: #28a745;
+        }
+
+        .work-cell {
+            position: relative;
+            height: 100%;
+            padding: 4px;
+        }
+
+        .work-info {
+            font-size: 12px;
+            margin-bottom: 2px;
+        }
+
+        .work-duration {
+            font-size: 11px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid py-4">
+        <!-- Personel Yönetimi -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>Personel/Stajyer Yönetimi</h4>
+                    <button class="btn btn-primary" onclick="openAddEmployeeModal()">
+                        <i class="bi bi-plus-lg"></i> Yeni Ekle
+            </button>
+                </div>
+                <div id="employeeList" class="row g-4"></div>
+            </div>
+        </div>
+
+        <hr class="my-4">
+
+        <!-- İş Takibi -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4>Günlük İş Takibi</h4>
+                    <div>
+                        <input type="date" id="dateSelect" class="form-control">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="timeline">
+                    <div class="timeline-header">Personel/Stajyer</div>
+                    <div class="timeline-header">09:00</div>
+                    <div class="timeline-header">10:00</div>
+                    <div class="timeline-header">11:00</div>
+                    <div class="timeline-header">12:00</div>
+                    <div class="timeline-header">13:00</div>
+                    <div class="timeline-header">14:00</div>
+                    <div class="timeline-header">15:00</div>
+                    <div class="timeline-header">16:00</div>
+                    <div class="timeline-header">17:00</div>
+                            </div>
+                <div id="timelineContent"></div>
+                            </div>
+                        </div>
+
+        <hr class="my-4">
+
+        <!-- İstatistikler -->
+                        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-4">Personel İstatistikleri</h4>
+                <div id="statsContainer" class="row g-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Employee Modal -->
+    <div class="modal fade" id="addEmployeeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Yeni Personel/Stajyer Ekle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="employeeForm">
+                        <div class="mb-3">
+                            <label for="employeeName" class="form-label">Ad Soyad</label>
+                            <input type="text" class="form-control" id="employeeName" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-primary" onclick="createEmployee()">Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Work Details Modal -->
+    <div class="modal fade" id="workDetailsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">İş Detayları</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="workDetails"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js"></script>
+    <script>
+        let employees = [];
+        const workDetailsModal = new bootstrap.Modal(document.getElementById('workDetailsModal'));
+        const addEmployeeModal = new bootstrap.Modal(document.getElementById('addEmployeeModal'));
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip';
+        document.body.appendChild(tooltip);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dateSelect').value = today;
+            
+            loadEmployees().then(() => {
+                loadTimeline();
+                loadStats();
+            });
+
+            document.getElementById('dateSelect').addEventListener('change', () => {
+                loadTimeline();
+            });
+        });
+
+        function openAddEmployeeModal() {
+            document.getElementById('employeeForm').reset();
+            addEmployeeModal.show();
+        }
+
+        async function createEmployee() {
+            const name = document.getElementById('employeeName').value.trim();
+            if (!name) {
+                showAlert('Uyarı', 'Lütfen personel/stajyer adını giriniz', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/employees', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+
+                if (response.ok) {
+                    addEmployeeModal.hide();
+                    await loadEmployees();
+                    await loadTimeline();
+                    await loadStats();
+                    showAlert('Başarılı', 'Personel/stajyer başarıyla eklendi', 'success');
+                } else {
+                    throw new Error('Personel/stajyer eklenirken bir hata oluştu');
+                }
+            } catch (error) {
+                showAlert('Hata', error.message, 'error');
+            }
+        }
+
+        async function deleteEmployee(id, name) {
+            const result = await Swal.fire({
+                title: 'Emin misiniz?',
+                text: `${name} isimli personel/stajyer silinecek. Bu işlem geri alınamaz!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Evet, Sil',
+                cancelButtonText: 'İptal'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/api/employees/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        await loadEmployees();
+                        await loadTimeline();
+                        await loadStats();
+                        showAlert('Başarılı', 'Personel/stajyer başarıyla silindi', 'success');
+                    } else {
+                        throw new Error('Personel/stajyer silinirken bir hata oluştu');
+                    }
+                } catch (error) {
+                    showAlert('Hata', error.message, 'error');
+                }
+            }
+        }
+
+        async function loadEmployees() {
+            try {
+                const response = await fetch('/api/employees');
+                const data = await response.json();
+                
+                if (data.type === 'success') {
+                    employees = data.data;
+                    displayEmployees();
+                    return true;
+                } else {
+                    showAlert(data.title, data.text, data.type);
+                    return false;
+                }
+            } catch (error) {
+                showAlert('Hata', 'Personel listesi yüklenirken bir hata oluştu', 'error');
+                return false;
+            }
+        }
+
+        function displayEmployees() {
+            const container = document.getElementById('employeeList');
+            container.innerHTML = '';
+
+            employees.forEach(employee => {
+                const col = document.createElement('div');
+                col.className = 'col-md-4 col-lg-3';
+                col.innerHTML = `
+                    <div class="card employee-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">${employee.name}</h5>
+                                <div class="employee-actions">
+                                    <button class="btn btn-sm btn-danger" onclick="deleteEmployee('${employee.id}', '${employee.name}')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(col);
+            });
+        }
+
+        async function loadTimeline() {
+            const container = document.getElementById('timelineContent');
+            container.innerHTML = '';
+
+            for (const employee of employees) {
+                const row = document.createElement('div');
+                row.className = 'timeline';
+                
+                // Employee name cell
+                const nameCell = document.createElement('div');
+                nameCell.className = 'timeline-employee';
+                nameCell.textContent = employee.name;
+                row.appendChild(nameCell);
+
+                // Time slots (9:00 - 17:00)
+                for (let i = 0; i < 9; i++) {
+                    const slot = document.createElement('div');
+                    slot.className = 'timeline-slot';
+                    slot.setAttribute('data-hour', i + 9);
+                    row.appendChild(slot);
+                }
+
+                container.appendChild(row);
+
+                // Load works for this employee
+                try {
+                    const date = document.getElementById('dateSelect').value;
+                    const response = await fetch(`/api/daily-timeline?employeeId=${employee.id}&date=${date}`);
+                    const data = await response.json();
+
+                    if (data.type === 'success') {
+                        data.data.forEach(slot => {
+                            slot.works.forEach(work => {
+                                const startTime = new Date(work.startTime);
+                                const endTime = work.endTime ? new Date(work.endTime) : new Date();
+                                
+                                // Calculate position
+                                const startHour = startTime.getHours();
+                                const startMinute = startTime.getMinutes();
+
+                                // Only show if work starts between 9:00 and 17:59
+                                if (startHour >= 9 && startHour < 18) {
+                                    // Calculate which slots this work spans
+                                    const slots = [];
+                                    let currentHour = startHour;
+                                    const currentTime = new Date();
+
+                                    while (currentHour < 18) {
+                                        if (work.status === 'completed') {
+                                            if (currentHour > endTime.getHours()) break;
+                                        } else {
+                                            if (currentHour > currentTime.getHours()) break;
+                                        }
+                                        slots.push(currentHour);
+                                        currentHour++;
+                                    }
+
+                                    slots.forEach((hour, index) => {
+                                        const bar = document.createElement('div');
+                                        bar.className = `work-bar ${work.status} ${work.workType}`;
+                                        
+                                        const slotIndex = hour - 9;
+                                        const slot = row.children[slotIndex + 1];
+
+                                        // Calculate bar position and width
+                                        if (hour === startHour) {
+                                            // First slot
+                                            bar.style.left = (startMinute / 60 * 100) + '%';
+                                            if (slots.length === 1) {
+                                                // Work ends in the same hour
+                                                if (work.status === 'completed') {
+                                                    const endMinute = endTime.getMinutes();
+                                                    bar.style.width = ((endMinute - startMinute) / 60 * 100) + '%';
+                                                } else {
+                                                    const currentMinute = currentTime.getMinutes();
+                                                    bar.style.width = ((currentMinute - startMinute) / 60 * 100) + '%';
+                                                }
+                                            } else {
+                                                bar.style.width = (100 - (startMinute / 60 * 100)) + '%';
+                                            }
+                                        } else if (hour === slots[slots.length - 1]) {
+                                            // Last slot
+                                            bar.style.left = '0';
+                                            if (work.status === 'completed') {
+                                                bar.style.width = (endTime.getMinutes() / 60 * 100) + '%';
+                                            } else {
+                                                bar.style.width = (currentTime.getMinutes() / 60 * 100) + '%';
+                                            }
+                                        } else {
+                                            // Middle slots
+                                            bar.style.left = '0';
+                                            bar.style.width = '100%';
+                                        }
+
+                                        // Add tooltip
+                                        const tooltipContent = `
+                                            ${work.workType === 'software' ? 'Yazılım' : 'Video'} İşi<br>
+                                            Başlangıç: ${formatTime(work.startTime)}<br>
+                                            ${work.status === 'completed' ? 
+                                                `Bitiş: ${formatTime(work.endTime)}` : 
+                                                'Devam Ediyor'}
+                                        `;
+                                        bar.setAttribute('data-tooltip', tooltipContent);
+
+                                        // Add hover events for tooltip
+                                        bar.addEventListener('mouseenter', showTooltip);
+                                        bar.addEventListener('mouseleave', hideTooltip);
+
+                                        // Add click event for details
+                                        bar.addEventListener('click', () => showWorkDetails(work));
+
+                                        slot.appendChild(bar);
+                                    });
+                                }
+                            });
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error loading timeline:', error);
+                }
+            }
+        }
+
+        // Refresh timeline every minute for in-progress works
+        setInterval(loadTimeline, 60000);
+
+        function createWorkBar(work, startTime, endTime) {
+            const bar = document.createElement('div');
+            bar.className = `work-bar ${work.status} ${work.workType}`;
+            
+            // Calculate progress for in-progress works
+            if (work.status !== 'completed') {
+                const now = new Date();
+                const start = new Date(work.startTime);
+                const progressPercent = Math.min(100, ((now - start) / (1000 * 60 * 60)) * 100);
+                
+                const progressBar = document.createElement('div');
+                progressBar.className = 'progress-bar';
+                progressBar.style.width = `${progressPercent}%`;
+                bar.appendChild(progressBar);
+            }
+            
+            // Add tooltip and click events
+            bar.setAttribute('data-tooltip', createTooltipContent(work));
+            bar.addEventListener('mouseenter', showTooltip);
+            bar.addEventListener('mouseleave', hideTooltip);
+            bar.addEventListener('click', () => showWorkDetails(work));
+            
+            return bar;
+        }
+
+        function formatDuration(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            const secs = Math.round((mins % 1) * 60);
+            
+            let result = '';
+            if (hours > 0) result += `${hours} saat `;
+            if (mins > 0) result += `${Math.floor(mins)} dakika `;
+            if (secs > 0) result += `${secs} saniye`;
+            
+            return result.trim() || '0 saniye';
+        }
+
+        async function loadStats() {
+            const container = document.getElementById('statsContainer');
+            container.innerHTML = '';
+
+            for (const employee of employees) {
+                try {
+                    const response = await fetch(`/api/work-stats/${employee.id}`);
+                    const stats = await response.json();
+
+                    const card = document.createElement('div');
+                    card.className = 'col-md-4';
+                    card.innerHTML = `
+                        <div class="card stats-card">
+                            <div class="card-body">
+                                <h5 class="card-title">${employee.name}</h5>
+                                <div class="mt-3">
+                                    <p class="mb-2">
+                                        <strong>Toplam İş:</strong> ${stats.totalWorks}
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong>Ortalama Video Süresi:</strong> ${stats.averageVideoDuration ? formatDuration(parseFloat(stats.averageVideoDuration)) : 'Veri yok'}
+                                    </p>
+                                    <p class="mb-0">
+                                        <strong>Ortalama Yazılım Süresi:</strong> ${stats.averageSoftwareDuration ? formatDuration(parseFloat(stats.averageSoftwareDuration)) : 'Veri yok'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                } catch (error) {
+                    console.error('Error loading stats:', error);
+                }
+            }
+        }
+
+        function showWorkDetails(work) {
+            let durationText = '';
+            if (work.status === 'completed') {
+                const startTime = new Date(work.startTime);
+                const endTime = new Date(work.endTime);
+                
+                if (endTime < startTime) {
+                    endTime.setDate(endTime.getDate() + 1);
+                }
+                
+                const durationMinutes = Math.round((endTime - startTime) / (1000 * 60));
+                durationText = formatDuration(durationMinutes);
+            }
+
+            const details = document.getElementById('workDetails');
+            details.innerHTML = `
+                <div class="mb-3">
+                    <strong>Personel:</strong> ${work.employeeName}
+                </div>
+                <div class="mb-3">
+                    <strong>İş Türü:</strong> ${work.workType === 'video' ? 'Video' : 'Yazılım'}
+                </div>
+                <div class="mb-3">
+                    <strong>Açıklama:</strong> ${work.description}
+                </div>
+                ${work.workType === 'video' ? `
+                    <div class="mb-3">
+                        <strong>Video Türü:</strong> ${work.isFirstVideo ? 'İlk Video' : 'Revize'}
+                    </div>
+                    ${work.isRevision ? `
+                        <div class="mb-3">
+                            <strong>Revizeyi Yapan:</strong> ${work.revisedByName}
+                        </div>
+                    ` : ''}
+                    ${work.status === 'completed' ? `
+                        <div class="mb-3">
+                            <strong>Revizyon Durumu:</strong>
+                            <select class="form-select mt-2" id="revisionStatus-${work.id}" onchange="updateRevisionStatus('${work.id}')">
+                                <option value="pending" ${work.revisionStatus === 'pending' ? 'selected' : ''}>Onay Bekliyor</option>
+                                <option value="approved" ${work.revisionStatus === 'approved' ? 'selected' : ''}>Onaylandı</option>
+                                <option value="needs_revision" ${work.revisionStatus === 'needs_revision' ? 'selected' : ''}>Revizyon Gerekli</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="revisionNoteContainer-${work.id}" style="display: ${work.revisionStatus === 'needs_revision' ? 'block' : 'none'}">
+                            <strong>Revizyon Notu:</strong>
+                            <textarea class="form-control mt-2" id="revisionNote-${work.id}" rows="3">${work.revisionNote || ''}</textarea>
+                            <button class="btn btn-primary btn-sm mt-2" onclick="saveRevisionNote('${work.id}')">Notu Kaydet</button>
+                        </div>
+                    ` : ''}
+                ` : ''}
+                <div class="mb-3">
+                    <strong>Başlangıç:</strong> ${formatTime(work.startTime)}
+                </div>
+                ${work.status === 'completed' ? `
+                    <div class="mb-3">
+                        <strong>Bitiş:</strong> ${formatTime(work.endTime)}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Süre:</strong> ${durationText}
+                    </div>
+                    ${work.videoLink ? `
+                        <div class="mb-3">
+                            <strong>Link:</strong> <a href="${work.videoLink}" target="_blank">${work.videoLink}</a>
+                        </div>
+                    ` : ''}
+                ` : `
+                    <div class="mb-3">
+                        <strong>Durum:</strong> Devam Ediyor
+                    </div>
+                `}
+            `;
+            workDetailsModal.show();
+        }
+
+        async function updateRevisionStatus(workId) {
+            const status = document.getElementById(`revisionStatus-${workId}`).value;
+            const noteContainer = document.getElementById(`revisionNoteContainer-${workId}`);
+            
+            try {
+                const response = await fetch(`/api/work/${workId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        revisionStatus: status
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Revizyon durumu güncellenirken bir hata oluştu');
+                }
+
+                noteContainer.style.display = status === 'needs_revision' ? 'block' : 'none';
+                showAlert('Başarılı', 'Revizyon durumu güncellendi', 'success');
+                loadTimeline();
+            } catch (error) {
+                showAlert('Hata', error.message, 'error');
+            }
+        }
+
+        async function saveRevisionNote(workId) {
+            const note = document.getElementById(`revisionNote-${workId}`).value;
+            
+            try {
+                const response = await fetch(`/api/work/${workId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        revisionNote: note
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Revizyon notu kaydedilirken bir hata oluştu');
+                }
+
+                showAlert('Başarılı', 'Revizyon notu kaydedildi', 'success');
+                loadTimeline();
+            } catch (error) {
+                showAlert('Hata', error.message, 'error');
+            }
+        }
+
+        function updateTooltip(e, work) {
+            let durationText = '';
+            if (work.status === 'completed') {
+                const startTime = new Date(work.startTime);
+                const endTime = new Date(work.endTime);
+                
+                if (endTime < startTime) {
+                    endTime.setDate(endTime.getDate() + 1);
+                }
+                
+                const durationMinutes = Math.round((endTime - startTime) / (1000 * 60));
+                durationText = formatDuration(durationMinutes);
+            }
+
+            const tooltipContent = `
+                <strong>${work.workType === 'video' ? 'Video' : 'Yazılım'} İşi</strong><br>
+                ${work.description}<br>
+                ${work.workType === 'video' ? 
+                    `${work.isFirstVideo ? 'İlk Video' : 'Revize'}<br>
+                    ${work.isRevision ? `Revizeyi Yapan: ${work.revisedByName}<br>` : ''}
+                    ${work.revisionStatus ? `Revizyon Durumu: ${getRevisionStatusText(work.revisionStatus)}<br>` : ''}` : 
+                    ''}
+                Başlangıç: ${formatTime(work.startTime)}<br>
+                ${work.status === 'completed' ? `Bitiş: ${formatTime(work.endTime)}<br>
+                Süre: ${durationText}` : 'Devam Ediyor'}
+                ${work.videoLink ? `<br>Link: <a href="${work.videoLink}" target="_blank">${work.videoLink}</a>` : ''}
+            `;
+            
+            tooltip.innerHTML = tooltipContent;
+            tooltip.style.left = (e.pageX + 10) + 'px';
+            tooltip.style.top = (e.pageY + 10) + 'px';
+        }
+
+        function getRevisionStatusText(status) {
+            switch (status) {
+                case 'approved': return 'Onaylandı';
+                case 'needs_revision': return 'Revizyon Gerekli';
+                default: return 'Onay Bekliyor';
+            }
+        }
+
+        function showTooltip(e) {
+            const tooltip = document.querySelector('.tooltip');
+            const content = this.getAttribute('data-tooltip');
+            tooltip.innerHTML = content;
+            tooltip.style.display = 'block';
+            tooltip.style.left = (e.pageX + 10) + 'px';
+            tooltip.style.top = (e.pageY + 10) + 'px';
+        }
+
+        function hideTooltip() {
+            const tooltip = document.querySelector('.tooltip');
+            tooltip.style.display = 'none';
+        }
+
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function showAlert(title, text, icon) {
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: icon,
+                confirmButtonText: 'Tamam'
+            });
+        }
+
+        // Add WebSocket connection for real-time updates
+        const ws = new WebSocket('ws://' + window.location.host + '/ws');
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            if (data.type === 'work_created' || data.type === 'work_updated') {
+                loadTimeline();
+            }
+        };
+    </script>
+</body>
+</html> 

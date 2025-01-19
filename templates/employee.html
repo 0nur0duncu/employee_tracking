@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personel/Stajyer Paneli</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        body {
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .container-fluid {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem !important;
+            overflow: hidden;
+        }
+        .row {
+            flex: 1;
+            min-height: 0;
+        }
+        .card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - 2rem);
+        }
+        .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 1rem;
+        }
+        #workForm {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            gap: 0.75rem;
+        }
+        #workForm .mb-3 {
+            margin-bottom: 0 !important;
+            display: flex;
+            flex-direction: column;
+        }
+        #workForm textarea {
+            max-height: 300px;
+            resize: vertical;
+            overflow-y: auto;
+        }
+        #workForm .btn {
+            margin-top: auto;
+            width: fit-content;
+        }
+        .work-card {
+            border-left: 4px solid #007bff;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+            padding: 0.75rem;
+            width: 100%;
+            max-width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            height: fit-content;
+        }
+        .work-card:last-child {
+            margin-bottom: 0;
+        }
+        .work-card .card-body {
+            padding: 0;
+            width: 100%;
+            overflow: hidden;
+            height: auto;
+            min-height: auto;
+            flex: 0 0 auto;
+        }
+        .work-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .work-card.completed {
+            border-left-color: #28a745;
+        }
+        .work-card.in-progress {
+            border-left-color: #ffc107;
+        }
+        .work-card .card-title {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .work-card .mb-2 {
+            margin-bottom: 0.5rem !important;
+        }
+        .work-card .mt-2 {
+            margin-top: 0.5rem !important;
+        }
+        .work-card .text-break {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+        }
+        .work-card a {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            display: inline-block;
+            max-width: 100%;
+        }
+        .scrollable-section {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            min-height: 0;
+            padding-right: 5px;
+        }
+        .scrollable-section::-webkit-scrollbar {
+            width: 5px;
+        }
+        .scrollable-section::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .scrollable-section::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 5px;
+        }
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        .revision-section {
+            display: none;
+        }
+        .link-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        .link-text {
+            max-width: calc(100% - 40px);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .link-text a {
+            color: #0d6efd;
+            text-decoration: none;
+        }
+        .link-text a:hover {
+            text-decoration: underline;
+        }
+        .edit-link-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            margin-left: 4px;
+            flex-shrink: 0;
+            border: none;
+            background: transparent;
+            color: #6c757d;
+            transition: all 0.2s;
+        }
+        .edit-link-btn:hover {
+            color: #0d6efd;
+            background: rgba(13, 110, 253, 0.1);
+        }
+        .link-edit {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            background: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        .link-edit input {
+            flex: 1;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 0.375rem 0.75rem;
+        }
+        .link-edit input:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            outline: none;
+        }
+        .link-edit button {
+            padding: 0.375rem 0.75rem;
+            border: none;
+            background: transparent;
+            color: #6c757d;
+            transition: all 0.2s;
+            border-radius: 4px;
+        }
+        .link-edit button:hover {
+            color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+        }
+        .section-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            padding: 0 0.25rem;
+        }
+        .section-nav button {
+            padding: 0.25rem 0.5rem;
+        }
+        .section-container {
+            display: flex;
+            gap: 1rem;
+            flex: 1;
+            overflow: hidden;
+        }
+        .section-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .active-section {
+            border: 2px solid #007bff;
+            border-radius: 0.375rem;
+        }
+        .card-title {
+            font-size: 1.1rem;
+        }
+        .alert {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        .reviews-section {
+            margin-top: 0.5rem;
+            margin-bottom: 0;
+        }
+        .reviews-section h6 {
+            margin-bottom: 0.5rem;
+        }
+        .complete-btn-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 0.5rem;
+            margin-bottom: 0;
+        }
+        .complete-btn-container .btn-success {
+            padding: 0.25rem 0.75rem;
+            font-weight: 500;
+        }
+        .work-card p {
+            margin-bottom: 0.5rem;
+        }
+        .work-card p:last-child {
+            margin-bottom: 0;
+        }
+        .work-card .alert:last-child {
+            margin-bottom: 0;
+        }
+        .edit-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        .edit-content {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .edit-buttons {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .edit-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            border: none;
+            background: transparent;
+            color: #6c757d;
+            transition: all 0.2s;
+            border-radius: 4px;
+        }
+        .edit-btn:hover:not(:disabled) {
+            color: #0d6efd;
+            background: rgba(13, 110, 253, 0.1);
+        }
+        .edit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .edit-input {
+            flex: 1;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 0.375rem 0.75rem;
+        }
+        .edit-input:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            outline: none;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid py-4">
+        <div class="row g-4">
+            <!-- Sol Panel - İş Tanımlama -->
+            <div class="col-md-5">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Yeni İş Tanımla</h5>
+                        <form id="workForm">
+                            <div class="mb-3">
+                                <label class="form-label">Personel/Stajyer</label>
+                                <select id="employeeSelect" class="form-select" required>
+                                    <option value="">Seçiniz</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">İş Türü</label>
+                                <select id="workType" class="form-select" required>
+                                    <option value="">Seçiniz</option>
+                                    <option value="video">Video</option>
+                                    <option value="software">Yazılım</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">İş Tanımı</label>
+                                <textarea id="description" class="form-control" rows="3" required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">İş Tanımla</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sağ Panel - Bugünkü İşler/Tamamlanmış Videolar -->
+            <div class="col-md-7">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body d-flex flex-column">
+                        <div class="section-nav">
+                            <h5 class="card-title mb-0" id="sectionTitle">Bugünkü İşlerim</h5>
+                            <div>
+                                <button class="btn btn-outline-primary btn-sm" onclick="switchToSection(0)">
+                                    <i class="bi bi-arrow-left"></i>
+                                </button>
+                                <button class="btn btn-outline-primary btn-sm" onclick="switchToSection(1)">
+                                    <i class="bi bi-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Bugünkü İşler -->
+                        <div id="todaysWorks" class="scrollable-section"></div>
+                        <!-- Tamamlanmış Videolar -->
+                        <div id="completedVideosList" class="scrollable-section" style="display: none;">
+                            <div class="list-group">
+                                <!-- Videos will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Work Completion Modal -->
+    <div class="modal fade" id="completeWorkModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">İş Tamamlama</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="completeWorkForm">
+                            <div class="mb-3">
+                            <label class="form-label">Link</label>
+                            <input type="url" id="workLink" class="form-control" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-primary" id="confirmComplete">Tamamla</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Review Modal -->
+    <div class="modal fade" id="reviewModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Video İnceleme</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="reviewVideoDetails" class="mb-3">
+                        <!-- Video details will be loaded here -->
+                            </div>
+                    <form id="reviewForm">
+                        <div class="mb-3">
+                            <label class="form-label">İnceleme Yorumu</label>
+                            <textarea id="reviewComment" class="form-control" rows="3" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-primary" id="confirmReview">İncelemeyi Tamamla</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js"></script>
+    <script>
+        let selectedWorkId = null;
+        let selectedVideoId = null;
+        const completeWorkModal = new bootstrap.Modal(document.getElementById('completeWorkModal'));
+        const reviewModal = new bootstrap.Modal(document.getElementById('reviewModal'));
+        let currentEmployeeId = localStorage.getItem('selectedEmployeeId');
+        let activeSection = 0; // 0 for today's works, 1 for completed videos
+        const sections = ['todaysWorks', 'completedVideosList'];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const employeeSelect = document.getElementById('employeeSelect');
+            
+            // First load employees
+            const employeesLoaded = await loadEmployees();
+            if (!employeesLoaded) {
+                document.getElementById('todaysWorks').innerHTML = 
+                    '<div class="alert alert-info">Personel listesi yüklenemedi</div>';
+                return;
+            }
+
+            // Then try to set selected employee
+            if (currentEmployeeId) {
+                employeeSelect.value = currentEmployeeId;
+                if (employeeSelect.value) { // Make sure the ID exists in the list
+                    await loadTodaysWorks(currentEmployeeId);
+                } else {
+                    currentEmployeeId = null;
+                    localStorage.removeItem('selectedEmployeeId');
+                    document.getElementById('todaysWorks').innerHTML = 
+                        '<div class="alert alert-info">Lütfen personel/stajyer seçiniz</div>';
+                }
+            } else {
+                employeeSelect.value = "";
+                document.getElementById('todaysWorks').innerHTML = 
+                    '<div class="alert alert-info">Lütfen personel/stajyer seçiniz</div>';
+            }
+
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Employee selection change
+            document.getElementById('employeeSelect').addEventListener('change', async (e) => {
+                currentEmployeeId = e.target.value;
+                localStorage.setItem('selectedEmployeeId', currentEmployeeId);
+                
+                // Reset work type selection
+                document.getElementById('workType').value = '';
+                
+                // Hide completed videos list
+                document.getElementById('completedVideosList').style.display = 'none';
+                
+                if (currentEmployeeId) {
+                    await loadTodaysWorks(currentEmployeeId);
+                    // If video type is selected, reload completed videos
+                    if (document.getElementById('workType').value === 'video') {
+                        await loadCompletedVideos();
+                    }
+                } else {
+                    document.getElementById('todaysWorks').innerHTML = 
+                        '<div class="alert alert-info">Lütfen personel/stajyer seçiniz</div>';
+                }
+            });
+
+            // Work type change
+            document.getElementById('workType').addEventListener('change', async (e) => {
+                if (e.target.value === 'video') {
+                    // Video seçildiğinde tamamlanmış videolar bölümünü aktif et
+                    document.getElementById('completedVideosList').style.display = '';
+                    document.getElementById('sectionTitle').textContent = 'Tamamlanmış Videolar';
+                    document.getElementById('todaysWorks').style.display = 'none';
+                    activeSection = 1;
+                    await loadCompletedVideos();
+                } else {
+                    // Video dışında bir seçenek seçildiğinde bugünkü işlere dön
+                    document.getElementById('completedVideosList').style.display = 'none';
+                    document.getElementById('sectionTitle').textContent = 'Bugünkü İşlerim';
+                    document.getElementById('todaysWorks').style.display = '';
+                    activeSection = 0;
+                    await loadTodaysWorks(currentEmployeeId);
+                }
+            });
+
+            // Work form submission
+            document.getElementById('workForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await createWork();
+            });
+
+            // Complete work confirmation
+            document.getElementById('confirmComplete').addEventListener('click', completeWork);
+
+            // Review confirmation
+            document.getElementById('confirmReview').addEventListener('click', submitReview);
+        }
+
+        async function loadEmployees() {
+            try {
+                const response = await fetch('/api/employees');
+                if (!response.ok) {
+                    throw new Error('Sunucu yanıt vermedi');
+                }
+                
+                const result = await response.json();
+                const select = document.getElementById('employeeSelect');
+                
+                select.innerHTML = '<option value="">Personel/Stajyer Seçiniz</option>';
+                
+                if (result.type === 'success' && result.data) {
+                    result.data.forEach(employee => {
+                        const option = new Option(employee.name, employee.id);
+                        select.add(option);
+                    });
+                    return true;
+                } else {
+                    showAlert(result.title || 'Uyarı', result.text || 'Personel listesi boş', result.type || 'warning');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error loading employees:', error);
+                showAlert('Hata', 'Personel listesi yüklenirken bir hata oluştu. Lütfen sayfayı yenileyiniz.', 'error');
+                return false;
+            }
+        }
+
+        async function loadTodaysWorks(employeeId) {
+            if (!employeeId) {
+                document.getElementById('todaysWorks').innerHTML = 
+                    '<div class="alert alert-info">Lütfen personel/stajyer seçiniz</div>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/works`);
+                if (!response.ok) {
+                    throw new Error('API yanıtı başarısız');
+                }
+
+                const data = await response.json();
+                // Eğer data boş veya undefined ise boş array kullan
+                const works = Array.isArray(data) ? data : (data.data || []);
+
+                const container = document.getElementById('todaysWorks');
+                container.innerHTML = '';
+
+                // Filter works for today and current employee
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const todayWorks = works.filter(work => {
+                    if (!work || !work.startTime || !work.employeeId) return false;
+                    const workDate = new Date(work.startTime);
+                    workDate.setHours(0, 0, 0, 0);
+                    return workDate.getTime() === today.getTime() && 
+                           work.employeeId.toString() === employeeId.toString();
+                });
+
+                if (todayWorks.length === 0) {
+                    container.innerHTML = '<div class="alert alert-info">Bugün için henüz iş kaydı bulunmuyor</div>';
+                    return;
+                }
+
+                // Sort works by start time (newest first)
+                todayWorks.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+
+                todayWorks.forEach(work => {
+                    container.appendChild(createWorkCard(work));
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('todaysWorks').innerHTML = 
+                    '<div class="alert alert-info">Bugün için henüz iş kaydı bulunmuyor</div>';
+            }
+
+            // Create a new event listener for check-revise-btn
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('check-revise-btn')) {
+                    const videoId = e.target.getAttribute('data-video-id');
+                    const description = e.target.getAttribute('data-description');
+                    
+                    fetch('/api/work/' + videoId)
+                        .then(response => response.json())
+                        .then(video => {
+                            if (video.employeeId === currentEmployeeId) {
+                                startRevision(videoId, description);
+                            } else {
+                                showAlert('Uyarı', 'Bu videoyu revize etme yetkiniz yok', 'warning');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showAlert('Hata', 'Video bilgileri alınırken bir hata oluştu', 'error');
+                        });
+                }
+            });
+        }
+
+        function createWorkCard(work) {
+            const card = document.createElement('div');
+            card.className = `card work-card ${work.status === 'completed' ? 'completed' : 'in-progress'} mb-3`;
+            
+            const cardBody = document.createElement('div');
+            cardBody.className = 'card-body';
+
+            // Calculate duration for completed works
+            let durationText = '';
+            if (work.status === 'completed') {
+                const startTime = new Date(work.startTime);
+                const endTime = new Date(work.endTime);
+                
+                // Eğer bitiş zamanı başlangıç zamanından küçükse, bir sonraki güne geçmiş demektir
+                if (endTime < startTime) {
+                    endTime.setDate(endTime.getDate() + 1);
+                }
+                
+                const durationMinutes = Math.round((endTime - startTime) / (1000 * 60));
+                const hours = Math.floor(durationMinutes / 60);
+                const minutes = durationMinutes % 60;
+                durationText = hours > 0 ? 
+                    `${hours} saat ${minutes} dakika` : 
+                    `${minutes} dakika`;
+            }
+
+            const content = `
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="card-title mb-0">
+                        ${work.workType === 'video' ? 'Video' : 
+                          work.workType === 'review' ? 'Video İncelemesi' :
+                          work.workType === 'revize' ? 'Revize' : 'Yazılım'}
+                    </h5>
+                    <span class="badge ${work.status === 'completed' ? 'bg-success' : 'bg-warning'} ms-2">
+                        ${work.status === 'completed' ? 'Tamamlandı' : 'Devam Ediyor'}
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <span class="text-muted">Başlangıç:</span> ${formatTime(work.startTime)}
+                    </div>
+                    <div>
+                        ${work.status === 'completed' ? 
+                            `<span class="text-muted">Bitiş:</span> ${formatTime(work.endTime)}` : 
+                            '<span class="text-warning">Devam Ediyor</span>'}
+                    </div>
+                </div>
+                ${work.status === 'completed' ? 
+                    `<div class="text-muted mb-2">Süre: ${durationText}</div>` : 
+                    ''}
+                ${work.workType === 'review' ? `
+                    <div class="review-details">
+                        <p class="mb-1"><strong>İncelenen Video:</strong> ${work.description}</p>
+                        <p class="mb-1"><strong>Video Link:</strong> <a href="${work.videoLink || '#'}" target="_blank">${work.videoLink || ''}</a></p>
+                        ${work.status === 'completed' && work.reviews?.[0]?.comment ? `
+                            <div class="alert alert-info mt-2 mb-0">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="mb-0"><strong>İnceleme Yorumu:</strong> ${work.reviews[0].comment}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                ` : `
+                    ${work.workType === 'video' || work.workType === 'revize' ? `
+                    <div class="edit-container">
+                        <div class="edit-content">
+                            <strong>İş Tanımı:</strong> ${work.description}
+                        </div>
+                        <div class="edit-buttons">
+                            <button class="edit-btn" onclick="editDescription('${work.id}')" 
+                                ${work.isBeingReviewed || (work.reviews && work.reviews.length > 0) ? 'disabled' : ''}>
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        </div>
+                    </div>
+                    ${work.status === 'completed' ? `
+                        <div class="edit-container">
+                            <div class="edit-content">
+                                <strong>Video Link:</strong> 
+                                ${work.videoLink ? `<a href="${work.videoLink}" target="_blank" class="text-break">${work.videoLink}</a>` : 'Link eklenmemiş'}
+                            </div>
+                            <div class="edit-buttons">
+                                <button class="edit-btn" onclick="editVideoLink('${work.id}')" 
+                                    ${work.isBeingReviewed || (work.reviews && work.reviews.length > 0) ? 'disabled' : ''}>
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </div>
+                        </div>
+                    ` : ''}
+                ` : ''}
+                    ${(work.workType === 'video' || work.workType === 'revize') && work.status === 'completed' && work.reviews?.length > 0 ? `
+                        <div class="reviews-section mt-2">
+                            <h6 class="text-muted mb-1">İnceleme Yorumları</h6>
+                            ${work.reviews.map(review => `
+                                <div class="alert alert-info mb-1">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <p class="mb-1">${review.comment}</p>
+                                            <small class="text-muted">
+                                                ${review.reviewerName} - ${formatTime(review.createdAt)}
+                                            </small>
+                                        </div>
+                                        ${work.employeeId === currentEmployeeId ? `
+                                            <button class="btn btn-sm btn-primary ms-2 revise-btn" 
+                                                    onclick="startRevision('${work.id}', '${work.description}')"
+                                                    id="revise-btn-${work.id}"
+                                                    ${work.isBeingReviewed ? 'disabled' : ''}>
+                                                ${work.isBeingReviewed ? 'Revize Başlatıldı' : 'Revize Et'}
+                                            </button>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                `}
+                
+                ${work.status !== 'completed' ? `
+                    <div class="complete-btn-container">
+                        <button class="btn btn-sm btn-success" onclick="openCompleteModal('${work.id}')">
+                            <i class="bi bi-check-lg"></i> Tamamlandı
+                        </button>
+                    </div>
+                ` : ''}
+            `;
+
+            cardBody.innerHTML = content;
+            card.appendChild(cardBody);
+
+            // Disable link editing if video or revision is being reviewed or has been reviewed
+            if ((work.workType === 'video' || work.workType === 'revize') && work.status === 'completed') {
+                const editBtn = cardBody.querySelector('.edit-btn');
+                if (editBtn && (work.reviews?.length > 0 || work.isBeingReviewed)) {
+                    editBtn.style.display = 'none';
+                }
+            }
+
+            return card;
+        }
+
+        function formatTime(dateString) {
+            return new Date(dateString).toLocaleTimeString('tr-TR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        async function openCompleteModal(workId) {
+            selectedWorkId = workId;
+            try {
+                const response = await fetch(`/api/work/${workId}`);
+                const work = await response.json();
+
+                if (work.workType === 'review') {
+                    // For review tasks, directly show comment input
+                    Swal.fire({
+                        title: 'İnceleme Yorumu',
+                        input: 'textarea',
+                        inputLabel: 'Yorumunuz',
+                        inputPlaceholder: 'İnceleme yorumunuzu yazın...',
+                        inputAttributes: {
+                            'aria-label': 'İnceleme yorumu'
+                        },
+                        showCancelButton: true,
+                        confirmButtonText: 'Tamamla',
+                        cancelButtonText: 'İptal',
+                        inputValidator: (value) => {
+                            if (!value) {
+                                return 'Lütfen bir yorum yazın!';
+                            }
+                        }
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            await completeReview(result.value);
+                        }
+                    });
+                } else {
+                    // For video tasks, show link input modal
+                    document.getElementById('workLink').value = '';
+                    completeWorkModal.show();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Hata', 'İş detayları yüklenirken bir hata oluştu', 'error');
+            }
+        }
+
+        async function completeReview(comment) {
+            try {
+                // Önce inceleme işini al
+                const reviewWork = await fetch(`/api/work/${selectedWorkId}`).then(r => r.json());
+                
+                // İncelenen videoyu bul
+                const videoResponse = await fetch(`/api/work/${reviewWork.reviewedVideoId}`);
+                const video = await videoResponse.json();
+
+                // Videoyu güncelle - yeni yorumu ekle ve incelenmiş olarak işaretle
+                const updateVideoResponse = await fetch(`/api/work/${reviewWork.reviewedVideoId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        reviews: [...(video.reviews || []), {
+                            reviewerId: currentEmployeeId,
+                            reviewerName: document.getElementById('employeeSelect').options[document.getElementById('employeeSelect').selectedIndex].text,
+                            comment: comment,
+                            createdAt: new Date().toISOString()
+                        }],
+                        isReviewed: true // Mark the video as reviewed
+                    })
+                });
+
+                if (!updateVideoResponse.ok) {
+                    throw new Error('Video yorumu eklenirken bir hata oluştu');
+                }
+
+                // İnceleme işini tamamla
+                const updateReviewResponse = await fetch(`/api/work/${selectedWorkId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        endTime: new Date().toISOString(),
+                        status: 'completed'
+                    })
+                });
+
+                if (!updateReviewResponse.ok) {
+                    throw new Error('İnceleme tamamlanırken bir hata oluştu');
+                }
+
+                await loadTodaysWorks(currentEmployeeId);
+                await loadCompletedVideos();
+                showAlert('Başarılı', 'İnceleme başarıyla tamamlandı', 'success');
+            } catch (error) {
+                showAlert('Hata', error.message, 'error');
+            }
+        }
+
+        async function completeWork() {
+            const link = document.getElementById('workLink').value;
+            if (!link) {
+                showAlert('Uyarı', 'Lütfen video linkini giriniz', 'warning');
+                return;
+            }
+
+            try {
+                const updateData = {
+                    endTime: new Date().toISOString(),
+                    status: 'completed',
+                    videoLink: link
+                };
+
+                const response = await fetch(`/api/work/${selectedWorkId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('İş tamamlanırken bir hata oluştu');
+                }
+
+                completeWorkModal.hide();
+                await loadTodaysWorks(currentEmployeeId);
+                showAlert('Başarılı', 'İş başarıyla tamamlandı', 'success');
+            } catch (error) {
+                showAlert('Hata', error.message, 'error');
+            }
+        }
+
+        function showAlert(title, text, icon) {
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: icon,
+                confirmButtonText: 'Tamam'
+            });
+        }
+
+        async function loadCompletedVideos() {
+            try {
+                const [videosResponse, worksResponse] = await Promise.all([
+                    fetch('/api/completed-videos'),
+                    fetch('/api/works')
+                ]);
+                
+                const videosResult = await videosResponse.json();
+                const worksData = await worksResponse.json();
+                
+                const completedVideosList = document.getElementById('completedVideosList');
+                const container = completedVideosList.querySelector('.list-group');
+                
+                // Önce container'ı temizle
+                container.innerHTML = '';
+                
+                if (videosResult.type === 'success') {
+                    // Get all in-progress reviews
+                    const inProgressReviews = worksData.filter(work => 
+                        work.workType === 'review' && 
+                        work.status === 'in_progress'
+                    );
+
+                    // Get all videos under review (by any user)
+                    const allVideosUnderReview = inProgressReviews
+                        .map(work => work.reviewedVideoId);
+
+                    // Filter videos
+                    const otherVideos = videosResult.data.filter(video => {
+                        if (video.employeeId === currentEmployeeId) return false;
+                        if (allVideosUnderReview.includes(video.id)) return false;
+                        if (video.isReviewed || (video.reviews && video.reviews.length > 0)) return false;
+                        return video.workType === 'video' || video.workType === 'revize';
+                    });
+
+                    if (otherVideos.length === 0) {
+                        container.innerHTML = `
+                            <div class="list-group-item">
+                                <p class="mb-0 text-muted">İncelenebilecek video bulunmuyor.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // Videoları ekle
+                    otherVideos.forEach(video => {
+                        const item = document.createElement('div');
+                        item.className = 'list-group-item';
+                        item.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">${video.description}</h6>
+                                    <small class="text-muted">
+                                        ${video.employeeName} - ${formatTime(video.startTime)}
+                                        ${video.isRevision ? '<span class="badge bg-info ms-2">Revize Edilmiş</span>' : ''}
+                                    </small>
+                                </div>
+                                <button class="btn btn-sm btn-primary" onclick="openReviewModal('${video.id}')">
+                                    İncele
+                                </button>
+                            </div>
+                        `;
+                        container.appendChild(item);
+                    });
+                } else {
+                    container.innerHTML = `
+                        <div class="list-group-item">
+                            <p class="mb-0 text-muted">${videosResult.text}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading completed videos:', error);
+                showAlert('Hata', 'Tamamlanmış videolar yüklenirken bir hata oluştu', 'error');
+            }
+        }
+
+        async function openReviewModal(videoId) {
+            try {
+                const response = await fetch(`/api/work/${videoId}`);
+                const video = await response.json();
+
+                Swal.fire({
+                    title: 'Video İncelemesi',
+                    html: `
+                        <div class="text-start">
+                            <p><strong>İş Tanımı:</strong> ${video.description}</p>
+                            <p><strong>Video:</strong> <a href="${video.videoLink}" target="_blank">${video.videoLink}</a></p>
+                        </div>
+                    `,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'İncelemeyi Başlat',
+                    cancelButtonText: 'İptal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        startReview(videoId, video);
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading video details:', error);
+                showAlert('Hata', 'Video detayları yüklenirken bir hata oluştu', 'error');
+            }
+        }
+
+        async function startReview(videoId, video) {
+            try {
+                const response = await fetch('/api/work', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        employeeId: currentEmployeeId,
+                        employeeName: document.getElementById('employeeSelect').options[document.getElementById('employeeSelect').selectedIndex].text,
+                        workType: 'review',
+                        description: video.description,
+                        videoLink: video.videoLink,
+                        reviewedVideoId: videoId,
+                        startTime: new Date().toISOString(),
+                        status: 'in_progress'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('İnceleme başlatılırken bir hata oluştu');
+                }
+
+                // İnceleme başlatıldıktan sonra videoyu listeden kaldır
+                const videoElement = document.querySelector(`[onclick="openReviewModal('${videoId}')"]`).closest('.list-group-item');
+                if (videoElement) {
+                    videoElement.remove();
+                }
+
+                await loadTodaysWorks(currentEmployeeId);
+                showAlert('Başarılı', 'İnceleme başarıyla başlatıldı', 'success');
+            } catch (error) {
+                showAlert('Hata', error.message, 'error');
+            }
+        }
+
+        async function submitReview() {
+            const comment = document.getElementById('reviewComment').value;
+            if (!comment) {
+                showAlert('Uyarı', 'Lütfen inceleme yorumu yazınız', 'warning');
+                return;
+            }
+
+            try {
+                // Create a new review work
+                const response = await fetch('/api/work', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        employeeId: currentEmployeeId,
+                        employeeName: document.getElementById('employeeSelect').options[document.getElementById('employeeSelect').selectedIndex].text,
+                        workType: 'review',
+                        description: `Video İncelemesi: ${comment}`,
+                        reviewedVideoId: selectedVideoId,
+                        startTime: new Date().toISOString(),
+                        status: 'in_progress'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('İnceleme kaydedilirken bir hata oluştu');
+                }
+
+                reviewModal.hide();
+                await loadTodaysWorks(currentEmployeeId);
+                showAlert('Başarılı', 'İnceleme başarıyla başlatıldı', 'success');
+            } catch (error) {
+                showAlert('Hata', error.message, 'error');
+            }
+        }
+
+        async function startRevision(videoId, originalDescription) {
+            try {
+                // First show confirmation dialog
+                const result = await Swal.fire({
+                    title: 'Revize Et',
+                    text: 'Bu videoyu revize etmek istediğinize emin misiniz?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Evet',
+                    cancelButtonText: 'İptal'
+                });
+
+                if (!result.isConfirmed) {
+                    return;
+                }
+
+                // Disable the revise button immediately
+                const reviseBtn = document.getElementById(`revise-btn-${videoId}`);
+                if (reviseBtn) {
+                    reviseBtn.disabled = true;
+                    reviseBtn.classList.add('disabled');
+                }
+
+                // Önce orijinal videoyu al
+                const videoResponse = await fetch(`/api/work/${videoId}`);
+                const originalVideo = await videoResponse.json();
+
+                // Create a new revision work
+                const revisionResponse = await fetch('/api/work', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        employeeId: currentEmployeeId,
+                        employeeName: document.getElementById('employeeSelect').options[document.getElementById('employeeSelect').selectedIndex].text,
+                        workType: 'revize',
+                        description: originalDescription,
+                        isRevision: true,
+                        videoLink: originalVideo.videoLink,
+                        startTime: new Date().toISOString(),
+                        status: 'in_progress',
+                        reviews: [] // Yeni revizyon için boş yorum listesi başlat
+                    })
+                });
+
+                if (!revisionResponse.ok) {
+                    // Re-enable the button if there's an error
+                    if (reviseBtn) {
+                        reviseBtn.disabled = false;
+                        reviseBtn.classList.remove('disabled');
+                    }
+                    throw new Error('Revizyon başlatılırken bir hata oluştu');
+                }
+
+                // Update the original video to mark it as being revised
+                await fetch(`/api/work/${videoId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        isBeingReviewed: true,
+                        revisedBy: currentEmployeeId,
+                        revisedByName: document.getElementById('employeeSelect').options[document.getElementById('employeeSelect').selectedIndex].text
+                    })
+                });
+
+                await loadTodaysWorks(currentEmployeeId);
+                showAlert('Başarılı', 'Revizyon başarıyla başlatıldı', 'success');
+            } catch (error) {
+                showAlert('Hata', error.message, 'error');
+            }
+        }
+
+        async function createWork() {
+            if (!currentEmployeeId) {
+                showAlert('Uyarı', 'Lütfen personel/stajyer seçiniz', 'warning');
+                return;
+            }
+
+            const workType = document.getElementById('workType').value;
+            const description = document.getElementById('description').value;
+
+            if (!workType || !description) {
+                showAlert('Uyarı', 'Lütfen tüm alanları doldurunuz', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/work', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        employeeId: currentEmployeeId,
+                        employeeName: document.getElementById('employeeSelect').options[document.getElementById('employeeSelect').selectedIndex].text,
+                        workType: workType,
+                        description: description,
+                        startTime: new Date().toISOString(),
+                        status: 'in_progress'
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'İş kaydedilirken bir hata oluştu');
+                }
+
+                // Reset form
+                document.getElementById('workForm').reset();
+                
+                // Reload today's works
+                await loadTodaysWorks(currentEmployeeId);
+                
+                showAlert('Başarılı', 'İş başarıyla kaydedildi', 'success');
+            } catch (error) {
+                console.error('Error creating work:', error);
+                showAlert('Hata', error.message || 'İş kaydedilirken bir hata oluştu', 'error');
+            }
+        }
+
+        async function loadVideoLink(videoId, linkElement) {
+            try {
+                const response = await fetch('/api/work/' + videoId);
+                const video = await response.json();
+                if (video.videoLink) {
+                    linkElement.href = video.videoLink;
+                    linkElement.target = '_blank';
+                    linkElement.textContent = video.videoLink;
+                    linkElement.onclick = null;
+                }
+            } catch (error) {
+                console.error('Error loading video link:', error);
+                showAlert('Hata', 'Video linki yüklenirken bir hata oluştu', 'error');
+            }
+        }
+
+        function switchToSection(sectionIndex) {
+            const sections = ['todaysWorks', 'completedVideosList'];
+            const titles = ['Bugünkü İşlerim', 'Tamamlanmış Videolar'];
+            
+            // Eğer tamamlanmış videolara geçilmek isteniyorsa ve iş türü video değilse, geçişe izin verme
+            if (sectionIndex === 1 && document.getElementById('workType').value !== 'video') {
+                showAlert('Uyarı', 'Tamamlanmış videolar bölümü sadece video türü seçiliyken görüntülenebilir.', 'warning');
+                return;
+            }
+
+            activeSection = sectionIndex;
+
+            // Update section visibility
+            sections.forEach((section, index) => {
+                const element = document.getElementById(section);
+                if (index === activeSection) {
+                    element.style.display = '';
+                    document.getElementById('sectionTitle').textContent = titles[index];
+                    if (index === 1) {
+                        loadCompletedVideos();
+                    } else {
+                        loadTodaysWorks(currentEmployeeId);
+                    }
+                } else {
+                    element.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize active section
+        document.addEventListener('DOMContentLoaded', () => {
+            // Show initial section
+            switchToSection(0);
+        });
+
+        async function editDescription(workId) {
+            try {
+                const response = await fetch(`/api/work/${workId}`);
+                if (!response.ok) {
+                    throw new Error('İş bilgileri alınamadı');
+                }
+                const work = await response.json();
+
+                if (work.isBeingReviewed) {
+                    showAlert('Uyarı', `Bu video şu anda ${work.revisedByName} tarafından inceleniyor.`, 'warning');
+                    return;
+                }
+
+                const { value: newDescription } = await Swal.fire({
+                    title: 'İş Tanımını Düzenle',
+                    input: 'textarea',
+                    inputLabel: 'İş Tanımı',
+                    inputValue: work.description,
+                    showCancelButton: true,
+                    confirmButtonText: 'Kaydet',
+                    cancelButtonText: 'İptal',
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'İş tanımı boş olamaz!';
+                        }
+                    }
+                });
+
+                if (newDescription) {
+                    const updateResponse = await fetch(`/api/work/${workId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            description: newDescription
+                        })
+                    });
+
+                    if (!updateResponse.ok) {
+                        const errorData = await updateResponse.json();
+                        throw new Error(errorData.error || 'İş tanımı güncellenirken bir hata oluştu');
+                    }
+
+                    // Başarılı yanıtı bekle
+                    await updateResponse.json();
+
+                    await loadTodaysWorks(currentEmployeeId);
+                    showAlert('Başarılı', 'İş tanımı başarıyla güncellendi', 'success');
+                }
+            } catch (error) {
+                console.error('Error updating description:', error);
+                showAlert('Hata', error.message, 'error');
+            }
+        }
+
+        async function editVideoLink(workId) {
+            try {
+                const response = await fetch(`/api/work/${workId}`);
+                const work = await response.json();
+
+                if (work.isBeingReviewed) {
+                    showAlert('Uyarı', `Bu video şu anda ${work.revisedByName} tarafından inceleniyor.`, 'warning');
+                    return;
+                }
+
+                const { value: newLink } = await Swal.fire({
+                    title: 'Video Linkini Düzenle',
+                    input: 'url',
+                    inputLabel: 'Video Link',
+                    inputValue: work.videoLink || '',
+                    showCancelButton: true,
+                    confirmButtonText: 'Kaydet',
+                    cancelButtonText: 'İptal',
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'Video linki boş olamaz!';
+                        }
+                    }
+                });
+
+                if (newLink) {
+                    const updateResponse = await fetch(`/api/work/${workId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            videoLink: newLink
+                        })
+                    });
+
+                    if (!updateResponse.ok) {
+                        throw new Error('Video linki güncellenirken bir hata oluştu');
+                    }
+
+                    await loadTodaysWorks(currentEmployeeId);
+                    showAlert('Başarılı', 'Video linki başarıyla güncellendi', 'success');
+                }
+            } catch (error) {
+                showAlert('Hata', error.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html> 
