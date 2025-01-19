@@ -1,88 +1,96 @@
-# İş Takip Sistemi
+# Personel Takip Yazılımı
 
-Modern ve profesyonel bir iş takip sistemi. Personel ve yönetici panelleri ile iş süreçlerini kolayca takip edin.
+Bu proje, personel ve stajyerlerin günlük iş takibini yapabilmek için geliştirilmiş bir web uygulamasıdır. Yazılım ve video işlerinin zaman bazlı takibini, video incelemelerini ve revizyon süreçlerini yönetmeyi sağlar.
 
 ## Özellikler
 
-- Personel Paneli:
-  - İş girişi (Yazılım/Video)
-  - Video linki ekleme
-  - İlk video/resize seçimi
-  - Başlangıç ve bitiş zamanı takibi
-  - Devam eden işleri görüntüleme ve tamamlama
+- 👥 Personel/stajyer yönetimi
+- 📝 İş tanımlama ve takibi
+- 🎥 Video işleri takibi
+- 💻 Yazılım işleri takibi
+- ⏱️ Gerçek zamanlı iş durumu güncellemeleri
+- 📊 İş istatistikleri
+- 🔄 Video revizyon sistemi
+- ✅ Video inceleme ve onay süreci
 
-- Yönetici Paneli:
-  - Tüm işlerin listesi
-  - İş durumu takibi
-  - İstatistikler
-  - Video işleri için ortalama süre hesaplama
+## Teknolojiler
 
-## Gereksinimler
-
-- Go 1.21 veya üzeri
-- MongoDB
-- Node.js ve npm (geliştirme için)
+- Backend: Go (Fiber framework)
+- Frontend: HTML, JavaScript, Bootstrap 5
+- Veritabanı: MongoDB
+- Containerization: Docker
 
 ## Kurulum
 
-1. Depoyu klonlayın:
-```bash
-git clone [repo-url]
-cd is-takip-sistemi
-```
+### Gereksinimler
 
-2. Go bağımlılıklarını yükleyin:
-```bash
-go mod download
-```
+- Docker
+- Docker Compose
 
-3. MongoDB'yi başlatın:
-```bash
-# MongoDB'nin çalıştığından emin olun
-mongod
-```
+### Kurulum Adımları
 
-4. `.env` dosyasını düzenleyin:
-```env
-MONGODB_URI=mongodb://localhost:27017
-DB_NAME=work_tracking_db
-PORT=8080
-```
+1. Projeyi klonlayın:
+   ```bash
+   git clone [repo-url]
+   cd personel-takip
+   ```
 
-5. Uygulamayı başlatın:
-```bash
-go run main.go
-```
+2. `.env` dosyasını oluşturun:
+   ```env
+   MONGODB_URI=mongodb://mongodb:27017
+   DB_NAME=personel_takip
+   PORT=8080
+   ```
 
-6. Tarayıcınızda `http://localhost:8080` adresine gidin
+3. Docker ile başlatın:
+   ```bash
+   docker-compose up -d
+   ```
+
+Uygulama varsayılan olarak `http://localhost:8080` adresinde çalışacaktır.
 
 ## Kullanım
 
-### Personel Paneli
-
-1. Ana sayfadan "Personel Girişi" butonuna tıklayın
-2. Yeni iş girişi formunu doldurun:
-   - Adınızı girin
-   - İş türünü seçin (Yazılım/Video)
-   - Video işi ise link ve türünü belirtin
-   - Başlangıç zamanını seçin
-3. İşi başlatın
-4. İş bittiğinde "İşi Tamamla" butonuna tıklayıp bitiş zamanını girin
-
 ### Yönetici Paneli
 
-1. Ana sayfadan "Yönetici Girişi" butonuna tıklayın
-2. Tüm işleri görüntüleyin:
-   - İstatistikleri inceleyin
-   - Filtreleme butonlarını kullanın
-   - Video işleri için ortalama süreleri görün
+- Personel/stajyer ekleme ve yönetimi
+- Günlük iş takibi
+- İstatistikleri görüntüleme
 
-## Güvenlik
+### Personel Paneli
 
-- Hassas bilgiler için .env dosyasını kullanın
-- .env dosyasını asla git deposuna eklemeyin
-- Üretim ortamında güvenli bir MongoDB bağlantısı kullanın
+- İş başlatma ve tamamlama
+- Video yükleme ve revizyon
+- İş geçmişi görüntüleme
+
+## Geliştirme
+
+### Yerel Geliştirme Ortamı
+
+1. Go'yu yükleyin (1.21 veya üstü)
+2. MongoDB'yi yükleyin
+3. Bağımlılıkları yükleyin:
+   ```bash
+   go mod download
+   ```
+4. Uygulamayı başlatın:
+   ```bash
+   go run main.go
+   ```
+
+### Docker ile Geliştirme
+
+```bash
+# Geliştirme ortamını başlatma
+docker-compose up -d
+
+# Logları izleme
+docker-compose logs -f
+
+# Servisleri durdurma
+docker-compose down
+```
 
 ## Lisans
 
-Bu proje MIT lisansı altında lisanslanmıştır. 
+Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakınız. 
