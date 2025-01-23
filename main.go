@@ -24,6 +24,7 @@ var (
 type Employee struct {
 	ID   primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	Name string             `json:"name" bson:"name"`
+	Type string             `json:"type" bson:"type"` // "staff" or "intern"
 }
 
 type WorkStats struct {
@@ -158,6 +159,16 @@ func createEmployee(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
+	// Validate employee type
+	if employee.Type != "staff" && employee.Type != "intern" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid employee type. Must be either 'staff' or 'intern'",
+			"type":  "warning",
+			"title": "Uyarı",
+			"text":  "Geçersiz personel tipi. Personel veya Stajyer seçiniz.",
+		})
+	}
+
 	employee.ID = primitive.NewObjectID()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -165,11 +176,21 @@ func createEmployee(c *fiber.Ctx) error {
 
 	result, err := db.Collection("employees").InsertOne(ctx, employee)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create employee: " + err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to create employee: " + err.Error(),
+			"type":  "error",
+			"title": "Hata",
+			"text":  "Personel/stajyer eklenirken bir hata oluştu.",
+		})
 	}
 
 	employee.ID = result.InsertedID.(primitive.ObjectID)
-	return c.Status(fiber.StatusCreated).JSON(employee)
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"type":  "success",
+		"title": "Başarılı",
+		"text":  "Personel/stajyer başarıyla eklendi.",
+		"data":  employee,
+	})
 }
 
 func getEmployees(c *fiber.Ctx) error {
@@ -328,7 +349,7 @@ func getDailyTimeline(c *fiber.Ctx) error {
 	filter := bson.M{
 		"startTime": bson.M{
 			"$gte": time.Date(date.Year(), date.Month(), date.Day(), 9, 0, 0, 0, time.Local),
-			"$lte": time.Date(date.Year(), date.Month(), date.Day(), 18, 0, 0, 0, time.Local),
+			"$lte": time.Date(date.Year(), date.Month(), date.Day(), 18, 0, 0, 0, time.Local), // 18:00'e ayarlandı
 		},
 		"employeeId": employeeObjID,
 	}
@@ -355,10 +376,10 @@ func getDailyTimeline(c *fiber.Ctx) error {
 		})
 	}
 
-	timeline := make([]TimelineSlot, 9)
-	for i := 0; i < 9; i++ {
+	timeline := make([]TimelineSlot, 10)
+	for i := 0; i < 10; i++ {
 		timeline[i] = TimelineSlot{
-			Hour:  i + 9,
+			Hour:  i + 9, // 9-18 arası
 			Works: []Work{},
 		}
 	}
@@ -429,6 +450,18 @@ func updateWork(c *fiber.Ctx) error {
 	err = db.Collection("works").FindOne(ctx, bson.M{"_id": id}).Decode(&work)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Work not found"})
+	}
+
+	// Video and revision editing restrictions
+	if work.WorkType == "video" || work.WorkType == "revize" {
+		// If the work is completed, prevent description and URL changes
+		if work.Status == "completed" {
+			if update.Description != "" || update.VideoLink != "" {
+				return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+					"error": "Tamamlanmış video düzenlenemez",
+				})
+			}
+		}
 	}
 
 	updateFields := bson.M{}
@@ -578,6 +611,27 @@ func getCompletedVideos(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	// Get date filter from query parameters
+	dateStr := c.Query("date")
+	var startTime, endTime time.Time
+
+	if dateStr != "" {
+		// Parse the date string
+		date, err := time.Parse("2006-01-02", dateStr)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"type":  "error",
+				"title": "Hata",
+				"text":  "Geçersiz tarih formatı",
+				"data":  []Work{},
+			})
+		}
+
+		// Set start time to beginning of the day and end time to end of the day
+		startTime = time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.Local)
+		endTime = time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, time.Local)
+	}
+
 	filter := bson.M{
 		"status": "completed",
 		"$or": []bson.M{
@@ -590,6 +644,14 @@ func getCompletedVideos(c *fiber.Ctx) error {
 				"isReviewed": bson.M{"$ne": true},
 			},
 		},
+	}
+
+	// Add date filter if provided
+	if dateStr != "" {
+		filter["endTime"] = bson.M{
+			"$gte": startTime,
+			"$lte": endTime,
+		}
 	}
 
 	cursor, err := db.Collection("works").Find(ctx, filter)

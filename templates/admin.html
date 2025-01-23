@@ -5,63 +5,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yönetici Paneli</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css" rel="stylesheet">
     <style>
         .timeline {
             display: grid;
-            grid-template-columns: 200px repeat(9, 1fr);
-            gap: 1px;
-            background-color: #dee2e6;
-            border: 1px solid #dee2e6;
-            margin-bottom: 1rem;
+            grid-template-columns: 200px repeat(10, 1fr);
+            gap: 0;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
         .timeline-header {
-            background-color: #f8f9fa;
-            padding: 0.5rem;
+            background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+            padding: 0.75rem 1rem;
             text-align: center;
             font-weight: 500;
+            color: #2c3e50;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.9rem;
         }
 
         .timeline-employee {
             background-color: #fff;
-            padding: 0.5rem;
-            border-right: 1px solid #dee2e6;
+            padding: 0.75rem 1rem;
+            border-right: 1px solid #e9ecef;
+            font-weight: 500;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #e9ecef;
         }
 
         .timeline-slot {
             background-color: #fff;
             height: 50px;
             position: relative;
+            border-right: 1px solid #e9ecef;
+            border-bottom: 1px solid #e9ecef;
+            transition: background-color 0.2s ease;
+        }
+
+        .timeline-slot:hover {
+            background-color: #f8f9fa;
         }
 
         .work-bar {
             position: absolute;
-            height: 30px;
-            top: 10px;
-            background-color: #ffc107;
-            border-radius: 4px;
+            height: 34px;
+            top: 8px;
+            background: #6c757d;  /* Default gray color */
+            border-radius: 6px;
             cursor: pointer;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .work-bar.in_progress {
+            background: linear-gradient(45deg, #ffc107, #ffdb4d);
         }
 
         .work-bar.completed {
-            background-color: #28a745;
+            background: linear-gradient(45deg, #28a745, #34ce57);
         }
 
-        .work-bar.in-progress {
-            animation: pulse 2s infinite;
+        .work-bar:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
         }
 
         @keyframes pulse {
             0% {
                 opacity: 1;
+                transform: scale(1);
             }
             50% {
-                opacity: 0.5;
+                opacity: 0.8;
+                transform: scale(0.98);
             }
             100% {
                 opacity: 1;
+                transform: scale(1);
             }
         }
 
@@ -76,23 +104,63 @@
 
         .tooltip {
             position: absolute;
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 8px;
-            border-radius: 4px;
-            font-size: 12px;
+            background: white;
+            color: #2c3e50;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
             z-index: 1000;
             pointer-events: none;
             display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e9ecef;
+            max-width: 300px;
+            line-height: 1.5;
+        }
+
+        .tooltip strong {
+            color: #0d6efd;
+            display: block;
+            margin-bottom: 0.25rem;
         }
 
         .employee-card {
             transition: all 0.3s ease;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .employee-card .card-body {
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+        }
+
+        .employee-card.staff .card-body {
+            background-color: #ebf5ff;
+        }
+
+        .employee-card.intern .card-body {
+            background-color: #f0fff4;
         }
 
         .employee-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-color: #0d6efd;
+        }
+
+        .employee-card.staff:hover .card-body {
+            background-color: #e1f0ff;
+        }
+
+        .employee-card.intern:hover .card-body {
+            background-color: #e6ffed;
         }
 
         .employee-actions {
@@ -130,13 +198,179 @@
         }
 
         .work-info {
-            font-size: 12px;
-            margin-bottom: 2px;
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+            color: #2c3e50;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .work-duration {
-            font-size: 11px;
+            font-size: 0.8rem;
             color: #6c757d;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .work-duration i {
+            font-size: 0.85rem;
+            color: #0d6efd;
+        }
+
+        /* Update the timeline container styles */
+        .row.mb-4 {
+            margin-bottom: 2rem !important;
+        }
+
+        /* Update the date select styles */
+        #dateSelect {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            background: white;
+            color: #2c3e50;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        #dateSelect:hover {
+            border-color: #0d6efd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        #dateSelect:focus {
+            outline: none;
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        }
+
+        /* Update the employee section and add button styles */
+        .employee-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+            overflow: hidden;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .employee-section:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .add-employee-btn {
+            width: 100%;
+            height: 100%;
+            min-height: 60px;
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            padding: 0.75rem;
+        }
+
+        .add-employee-btn i {
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .add-employee-btn:hover {
+            background: linear-gradient(135deg, #0b5ed7 0%, #094bac 100%);
+        }
+
+        .add-employee-btn:hover i {
+            transform: scale(1.1);
+        }
+
+        /* Add new styles for employee types and legend */
+        .employee-card.intern {
+            border-left: 4px solid #2ecc71;
+        }
+
+        .employee-card.staff {
+            border-left: 4px solid #3498db;
+        }
+
+        .legend-container {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #2c3e50;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .legend-color.intern {
+            background-color: #2ecc71;
+        }
+
+        .legend-color.staff {
+            background-color: #3498db;
+        }
+
+        /* Update home button style */
+        .home-btn {
+            padding: 0.6rem 1rem;
+            background: #0d6efd;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(13, 110, 253, 0.2);
+        }
+
+        .home-btn:hover {
+            background: #0b5ed7;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(13, 110, 253, 0.3);
+        }
+
+        .home-btn i {
+            font-size: 1.25rem;
+        }
+
+        /* Update container padding */
+        .container-fluid {
+            padding: 1rem;
+        }
+
+        #employeeContainer {
+            margin-top: 1rem;
+        }
+
+        .row.g-4 {
+            --bs-gutter-x: 1rem;
+            --bs-gutter-y: 1rem;
         }
     </style>
 </head>
@@ -145,13 +379,15 @@
         <!-- Personel Yönetimi -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex justify-content-between align-items-center">
                     <h4>Personel/Stajyer Yönetimi</h4>
-                    <button class="btn btn-primary" onclick="openAddEmployeeModal()">
-                        <i class="bi bi-plus-lg"></i> Yeni Ekle
-            </button>
+                    <a href="/" class="home-btn">
+                        <i class="bi bi-house-door"></i>
+                    </a>
                 </div>
-                <div id="employeeList" class="row g-4"></div>
+                <div class="row g-4" id="employeeContainer">
+                    <div id="employeeList" class="row g-4"></div>
+                </div>
             </div>
         </div>
 
@@ -182,10 +418,11 @@
                     <div class="timeline-header">15:00</div>
                     <div class="timeline-header">16:00</div>
                     <div class="timeline-header">17:00</div>
-                            </div>
+                    <div class="timeline-header">18:00</div>
+                </div>
                 <div id="timelineContent"></div>
-                            </div>
-                        </div>
+            </div>
+        </div>
 
         <hr class="my-4">
 
@@ -211,6 +448,14 @@
                         <div class="mb-3">
                             <label for="employeeName" class="form-label">Ad Soyad</label>
                             <input type="text" class="form-control" id="employeeName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="employeeType" class="form-label">Tip</label>
+                            <select class="form-select" id="employeeType" required>
+                                <option value="" disabled selected hidden>Tip Seçiniz</option>
+                                <option value="staff">Personel</option>
+                                <option value="intern">Stajyer</option>
+                            </select>
                         </div>
                     </form>
                 </div>
@@ -268,8 +513,10 @@
 
         async function createEmployee() {
             const name = document.getElementById('employeeName').value.trim();
-            if (!name) {
-                showAlert('Uyarı', 'Lütfen personel/stajyer adını giriniz', 'warning');
+            const type = document.getElementById('employeeType').value;
+            
+            if (!name || !type) {
+                showAlert('Uyarı', 'Lütfen tüm alanları doldurunuz', 'warning');
                 return;
             }
 
@@ -277,7 +524,7 @@
                 const response = await fetch('/api/employees', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name })
+                    body: JSON.stringify({ name, type })
                 });
 
                 if (response.ok) {
@@ -294,24 +541,26 @@
             }
         }
 
-        async function deleteEmployee(id, name) {
+        async function deleteEmployee(employeeId, employeeName) {
             const result = await Swal.fire({
                 title: 'Emin misiniz?',
-                text: `${name} isimli personel/stajyer silinecek. Bu işlem geri alınamaz!`,
+                text: `${employeeName} isimli personel/stajyer silinecek`,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Evet, Sil',
+                confirmButtonText: 'Evet, sil',
                 cancelButtonText: 'İptal'
             });
 
             if (result.isConfirmed) {
                 try {
-                    const response = await fetch(`/api/employees/${id}`, {
+                    const response = await fetch(`/api/employees/${employeeId}`, {
                         method: 'DELETE'
                     });
 
                     if (response.ok) {
-                        await loadEmployees();
+                        // Remove the deleted employee from the employees array
+                        employees = employees.filter(emp => emp.id !== employeeId);
+                        displayEmployees(); // Refresh the display
                         await loadTimeline();
                         await loadStats();
                         showAlert('Başarılı', 'Personel/stajyer başarıyla silindi', 'success');
@@ -324,37 +573,19 @@
             }
         }
 
-        async function loadEmployees() {
-            try {
-                const response = await fetch('/api/employees');
-                const data = await response.json();
-                
-                if (data.type === 'success') {
-                    employees = data.data;
-                    displayEmployees();
-                    return true;
-                } else {
-                    showAlert(data.title, data.text, data.type);
-                    return false;
-                }
-            } catch (error) {
-                showAlert('Hata', 'Personel listesi yüklenirken bir hata oluştu', 'error');
-                return false;
-            }
-        }
-
         function displayEmployees() {
             const container = document.getElementById('employeeList');
             container.innerHTML = '';
 
-            employees.forEach(employee => {
-                const col = document.createElement('div');
-                col.className = 'col-md-4 col-lg-3';
-                col.innerHTML = `
-                    <div class="card employee-card">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
+            if (Array.isArray(employees) && employees.length > 0) {
+                employees.forEach(employee => {
+                    const col = document.createElement('div');
+                    col.className = 'col-md-4 col-lg-3';
+                    col.innerHTML = `
+                        <div class="card employee-card ${employee.type || 'staff'}">
+                            <div class="card-body">
                                 <h5 class="card-title mb-0">${employee.name}</h5>
+                                <small class="text-muted">${employee.type === 'intern' ? 'Stajyer' : 'Personel'}</small>
                                 <div class="employee-actions">
                                     <button class="btn btn-sm btn-danger" onclick="deleteEmployee('${employee.id}', '${employee.name}')">
                                         <i class="bi bi-trash"></i>
@@ -362,10 +593,45 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                `;
-                container.appendChild(col);
-            });
+                    `;
+                    container.appendChild(col);
+                });
+            }
+
+            const addButtonCol = document.createElement('div');
+            addButtonCol.className = 'col-md-4 col-lg-3';
+            addButtonCol.innerHTML = `
+                <div class="employee-section">
+                    <button class="add-employee-btn" onclick="openAddEmployeeModal()">
+                        <i class="bi bi-plus-lg"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(addButtonCol);
+        }
+
+        async function loadEmployees() {
+            try {
+                const response = await fetch('/api/employees');
+                const data = await response.json();
+                
+                if (data.type === 'success') {
+                    employees = Array.isArray(data.data) ? data.data : [];
+                    displayEmployees();
+                    return true;
+                } else {
+                    employees = [];
+                    displayEmployees(); // Still display the Ekle button even if there's an error
+                    showAlert(data.title, data.text, data.type);
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error loading employees:', error);
+                employees = [];
+                displayEmployees(); // Still display the Ekle button even if there's an error
+                showAlert('Hata', 'Personel listesi yüklenirken bir hata oluştu', 'error');
+                return false;
+            }
         }
 
         async function loadTimeline() {
@@ -382,8 +648,8 @@
                 nameCell.textContent = employee.name;
                 row.appendChild(nameCell);
 
-                // Time slots (9:00 - 17:00)
-                for (let i = 0; i < 9; i++) {
+                // Time slots (9:00 - 18:00)
+                for (let i = 0; i < 10; i++) {
                     const slot = document.createElement('div');
                     slot.className = 'timeline-slot';
                     slot.setAttribute('data-hour', i + 9);
@@ -398,91 +664,56 @@
                     const response = await fetch(`/api/daily-timeline?employeeId=${employee.id}&date=${date}`);
                     const data = await response.json();
 
-                    if (data.type === 'success') {
+                    if (data.type === 'success' && data.data) {
                         data.data.forEach(slot => {
-                            slot.works.forEach(work => {
-                                const startTime = new Date(work.startTime);
-                                const endTime = work.endTime ? new Date(work.endTime) : new Date();
-                                
-                                // Calculate position
-                                const startHour = startTime.getHours();
-                                const startMinute = startTime.getMinutes();
-
-                                // Only show if work starts between 9:00 and 17:59
-                                if (startHour >= 9 && startHour < 18) {
-                                    // Calculate which slots this work spans
-                                    const slots = [];
-                                    let currentHour = startHour;
-                                    const currentTime = new Date();
-
-                                    while (currentHour < 18) {
-                                        if (work.status === 'completed') {
-                                            if (currentHour > endTime.getHours()) break;
-                                        } else {
-                                            if (currentHour > currentTime.getHours()) break;
-                                        }
-                                        slots.push(currentHour);
-                                        currentHour++;
-                                    }
-
-                                    slots.forEach((hour, index) => {
-                                        const bar = document.createElement('div');
-                                        bar.className = `work-bar ${work.status} ${work.workType}`;
+                            if (slot.works && slot.works.length > 0) {
+                                slot.works.forEach(work => {
+                                    const startTime = new Date(work.startTime);
+                                    const endTime = work.endTime ? new Date(work.endTime) : null;
+                                    
+                                    if (endTime) {
+                                        const startHour = startTime.getHours();
+                                        const startMinutes = startTime.getMinutes();
+                                        const endHour = endTime.getHours();
+                                        const endMinutes = endTime.getMinutes();
                                         
-                                        const slotIndex = hour - 9;
-                                        const slot = row.children[slotIndex + 1];
-
-                                        // Calculate bar position and width
-                                        if (hour === startHour) {
-                                            // First slot
-                                            bar.style.left = (startMinute / 60 * 100) + '%';
-                                            if (slots.length === 1) {
-                                                // Work ends in the same hour
-                                                if (work.status === 'completed') {
-                                                    const endMinute = endTime.getMinutes();
-                                                    bar.style.width = ((endMinute - startMinute) / 60 * 100) + '%';
-                                                } else {
-                                                    const currentMinute = currentTime.getMinutes();
-                                                    bar.style.width = ((currentMinute - startMinute) / 60 * 100) + '%';
-                                                }
-                                            } else {
-                                                bar.style.width = (100 - (startMinute / 60 * 100)) + '%';
-                                            }
-                                        } else if (hour === slots[slots.length - 1]) {
-                                            // Last slot
-                                            bar.style.left = '0';
-                                            if (work.status === 'completed') {
-                                                bar.style.width = (endTime.getMinutes() / 60 * 100) + '%';
-                                            } else {
-                                                bar.style.width = (currentTime.getMinutes() / 60 * 100) + '%';
-                                            }
-                                        } else {
-                                            // Middle slots
-                                            bar.style.left = '0';
-                                            bar.style.width = '100%';
+                                        // Calculate duration in minutes
+                                        const durationMinutes = ((endHour - startHour) * 60 + (endMinutes - startMinutes));
+                                        
+                                        // Calculate position and width
+                                        const startPosition = (startMinutes / 60) * 100;
+                                        const duration = durationMinutes / 60;
+                                        const width = duration * 100;
+                                        
+                                        const bar = document.createElement('div');
+                                        // Set class based on status and duration
+                                        let barClass = 'work-bar';
+                                        if (work.status === 'completed') {
+                                            barClass += ' completed';
+                                        } else if (work.status === 'in_progress' && durationMinutes >= 1) {
+                                            barClass += ' in_progress';
                                         }
-
-                                        // Add tooltip
-                                        const tooltipContent = `
-                                            ${work.workType === 'software' ? 'Yazılım' : 'Video'} İşi<br>
-                                            Başlangıç: ${formatTime(work.startTime)}<br>
-                                            ${work.status === 'completed' ? 
-                                                `Bitiş: ${formatTime(work.endTime)}` : 
-                                                'Devam Ediyor'}
-                                        `;
-                                        bar.setAttribute('data-tooltip', tooltipContent);
-
-                                        // Add hover events for tooltip
-                                        bar.addEventListener('mouseenter', showTooltip);
-                                        bar.addEventListener('mouseleave', hideTooltip);
-
-                                        // Add click event for details
+                                        bar.className = barClass;
+                                        
+                                        bar.style.left = startPosition + '%';
+                                        bar.style.width = width + '%';
+                                        bar.setAttribute('data-work-id', work.id);
+                                        
+                                        // Find the correct slot for the work
+                                        const slotElement = row.querySelector(`[data-hour="${startHour}"]`);
+                                        if (slotElement) {
+                                            slotElement.appendChild(bar);
+                                        }
+                                        
+                                        // Add event listener for work details
                                         bar.addEventListener('click', () => showWorkDetails(work));
-
-                                        slot.appendChild(bar);
-                                    });
-                                }
-                            });
+                                        
+                                        // Add hover effect for tooltip
+                                        bar.addEventListener('mouseenter', (e) => showTooltip(e, work));
+                                        bar.addEventListener('mouseleave', hideTooltip);
+                                    }
+                                });
+                            }
                         });
                     }
                 } catch (error) {
