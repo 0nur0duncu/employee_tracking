@@ -58,7 +58,7 @@
             color: #2c3e50;
             display: flex;
             align-items: center;
-            border-right: 1px solid #e9ecef;
+            border-right: 1px;
         }
 
         .timeline-slot {
@@ -90,7 +90,7 @@
 
         .work-bar {
             position: absolute;
-            height: 30px;
+            height: 30px; /* Default height for single bar */
             background: #6c757d;
             border-radius: 4px;
             cursor: pointer;
@@ -100,18 +100,18 @@
             z-index: 2;
             min-width: 10px;
             animation: pulse 2s infinite;
-            top: 10px; /* Vertically center the 30px bar in 50px slot */
+            top: 10px; /* (50px - 30px) / 2 = 10px for vertical centering */
         }
 
         /* Work bar positioning for multiple works */
         .work-bar.top {
             height: 20px;
-            top: 3px; /* Position in upper half: (50px - 40px) / 2 = 5px padding from top */
+            top: 5px; /* Position above center */
         }
 
         .work-bar.bottom {
             height: 20px;
-            top: 27px; /* Position in lower half: 50px - 20px - 3px = 27px from top */
+            top: 25px; /* Position below center */
         }
 
         @keyframes pulse {
@@ -799,15 +799,19 @@
                                         // Add the bar to the first slot
                                         const targetSlot = row.querySelectorAll('.timeline-slot')[slotIndex + 1];
                                         if (targetSlot) {
-                                            // Check for existing bars and position accordingly
                                             const existingBars = targetSlot.querySelectorAll('.work-bar');
+                                            
                                             if (existingBars.length > 0) {
-                                                // If there's already a bar, position this one at bottom
+                                                // İki iş varsa
+                                                const existingBar = existingBars[0];
+                                                
+                                                // Mevcut barı üst pozisyona taşı
+                                                existingBar.style.height = '20px';
+                                                existingBar.classList.add('top');
+                                                
+                                                // Yeni barı alt pozisyona ekle
+                                                bar.style.height = '20px';
                                                 bar.classList.add('bottom');
-                                                // Make the existing bar a top bar if it isn't already
-                                                if (!existingBars[0].classList.contains('top') && !existingBars[0].classList.contains('bottom')) {
-                                                    existingBars[0].classList.add('top');
-                                                }
                                             }
                                             
                                             bar.setAttribute('data-work-id', work.id);
