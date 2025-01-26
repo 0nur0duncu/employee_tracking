@@ -22,9 +22,10 @@ var (
 )
 
 type Employee struct {
-	ID   primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-	Name string             `json:"name" bson:"name"`
-	Type string             `json:"type" bson:"type"` // "staff" or "intern"
+	ID        primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	Name      string            `json:"name" bson:"name"`
+	Type      string            `json:"type" bson:"type"` // "staff" or "intern"
+	DeletedAt *time.Time        `json:"deletedAt,omitempty" bson:"deletedAt,omitempty"`
 }
 
 type WorkStats struct {
@@ -197,7 +198,13 @@ func getEmployees(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cursor, err := db.Collection("employees").Find(ctx, bson.M{})
+	includeDeleted := c.Query("includeDeleted") == "true"
+	filter := bson.M{}
+	if !includeDeleted {
+		filter["deletedAt"] = bson.M{"$exists": false}
+	}
+
+	cursor, err := db.Collection("employees").Find(ctx, filter)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to fetch employees: " + err.Error(),
@@ -242,12 +249,17 @@ func deleteEmployee(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	result, err := db.Collection("employees").DeleteOne(ctx, bson.M{"_id": id})
+	now := time.Now()
+	result, err := db.Collection("employees").UpdateOne(
+		ctx,
+		bson.M{"_id": id},
+		bson.M{"$set": bson.M{"deletedAt": now}},
+	)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete employee: " + err.Error()})
 	}
 
-	if result.DeletedCount == 0 {
+	if result.ModifiedCount == 0 {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Employee not found"})
 	}
 
@@ -346,16 +358,42 @@ func getDailyTimeline(c *fiber.Ctx) error {
 		})
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Önce çalışanı kontrol et
+	var employee Employee
+	err = db.Collection("employees").FindOne(ctx, bson.M{"_id": employeeObjID}).Decode(&employee)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"type":  "error",
+				"title": "Hata",
+				"text":  "Personel bulunamadı",
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"type":  "error",
+			"title": "Hata",
+			"text":  "Personel bilgisi alınırken bir hata oluştu",
+		})
+	}
+
+	// Eğer personel silinmişse ve seçilen tarih silinme tarihinden sonraysa timeline'ı gösterme
+	if employee.DeletedAt != nil && date.After(employee.DeletedAt.Truncate(24*time.Hour)) {
+		return c.JSON(fiber.Map{
+			"type": "success",
+			"data": []TimelineSlot{},
+		})
+	}
+
 	filter := bson.M{
 		"startTime": bson.M{
 			"$gte": time.Date(date.Year(), date.Month(), date.Day(), 9, 0, 0, 0, time.Local),
-			"$lte": time.Date(date.Year(), date.Month(), date.Day(), 18, 0, 0, 0, time.Local), // 18:00'e ayarlandı
+			"$lte": time.Date(date.Year(), date.Month(), date.Day(), 18, 0, 0, 0, time.Local),
 		},
 		"employeeId": employeeObjID,
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
 
 	works, err := db.Collection("works").Find(ctx, filter)
 	if err != nil {
@@ -379,7 +417,7 @@ func getDailyTimeline(c *fiber.Ctx) error {
 	timeline := make([]TimelineSlot, 10)
 	for i := 0; i < 10; i++ {
 		timeline[i] = TimelineSlot{
-			Hour:  i + 9, // 9-18 arası
+			Hour:  i + 9,
 			Works: []Work{},
 		}
 	}

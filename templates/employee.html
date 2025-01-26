@@ -1192,7 +1192,7 @@
                         ` : ''}
                     </div>
                 ` : `
-                    ${work.workType === 'video' || work.workType === 'revize' ? `
+                    ${work.workType === 'video' || work.workType === 'revize' || work.workType === 'software' ? `
                     <div class="edit-container">
                         <div class="edit-content">
                             <strong>İş Tanımı:</strong> ${work.description}
@@ -1208,7 +1208,7 @@
                     ${work.status === 'completed' ? `
                         <div class="edit-container">
                             <div class="edit-content">
-                                <strong>Video Link:</strong> 
+                                <strong>${work.workType === 'software' ? 'Link' : 'Video Link'}:</strong> 
                                 ${work.videoLink ? `<a href="${work.videoLink}" target="_blank" class="text-break">${work.videoLink}</a>` : 'Link eklenmemiş'}
                             </div>
                             <div class="edit-buttons">
