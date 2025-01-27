@@ -8,35 +8,72 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css" rel="stylesheet">
     <style>
+        .container-fluid {
+            padding: 1rem 2rem !important;
+            max-width: 100vw !important;
+            margin: 0 auto !important;
+            overflow-x: hidden !important;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .section-header .home-btn {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .section-header .date-select {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 200px;
+        }
+
+        .section-title {
+            margin: 0;
+            display: inline-block;
+        }
+
         .timeline-container {
             border: 1px solid #e9ecef;
             border-radius: 12px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             background-color: #f8f9fa;
+            width: 100%;
         }
 
         .timeline-wrapper {
             overflow-x: auto;
+            width: 100%;
         }
 
         .timeline-wrapper .timeline-container {
-            min-width: 1200px;
+            width: 100%;
         }
 
         .timeline-header-row {
             display: grid;
-            grid-template-columns: 200px repeat(19, minmax(60px, 1fr));
+            grid-template-columns: 200px repeat(540, minmax(1.5px, 1fr));
             gap: 0;
             border-bottom: 1px solid #e9ecef;
+            width: 100%;
         }
 
         .timeline {
             display: grid;
-            grid-template-columns: 200px repeat(19, minmax(60px, 1fr));
+            grid-template-columns: 200px repeat(540, minmax(1.5px, 1fr));
             gap: 0;
             background-color: #fff;
             position: relative;
             border-bottom: 1px solid #e9ecef;
+            width: 100%;
         }
 
         .timeline-header {
@@ -49,6 +86,7 @@
             position: relative;
             border: none;
             border-bottom: 1px solid #e9ecef;
+            grid-column: span 60;
         }
 
         .timeline-employee {
@@ -58,7 +96,7 @@
             color: #2c3e50;
             display: flex;
             align-items: center;
-            border-right: 1px;
+            border-right: 1px solid #e9ecef;
         }
 
         .timeline-slot {
@@ -90,7 +128,7 @@
 
         .work-bar {
             position: absolute;
-            height: 30px; /* Default height for single bar */
+            height: 30px;
             background: #6c757d;
             border-radius: 4px;
             cursor: pointer;
@@ -98,9 +136,9 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             border: 1px solid rgba(0,0,0,0.05);
             z-index: 2;
-            min-width: 10px;
+            min-width: 2px;
             animation: pulse 2s infinite;
-            top: 10px; /* (50px - 30px) / 2 = 10px for vertical centering */
+            top: 10px;
         }
 
         /* Work bar positioning for multiple works */
@@ -424,6 +462,249 @@
             --bs-gutter-x: 1rem;
             --bs-gutter-y: 1rem;
         }
+
+        @media (max-width: 768px) {
+            .section-header {
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+            
+            .section-header .date-select {
+                position: static;
+                transform: none;
+                width: 100%;
+            }
+
+            .section-header .home-btn {
+                position: static;
+                transform: none;
+                margin-top: 0.5rem;
+            }
+
+            .section-title {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        /* Activity Card Styles */
+        .activity-card {
+            height: 100%;
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 16px;
+            background: white;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .activity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .activity-card.intern {
+            border-left: 5px solid #198754;
+        }
+
+        .activity-card.staff {
+            border-left: 5px solid #0d6efd;
+        }
+
+        .activity-card .card-body {
+            padding: 1.5rem;
+        }
+
+        .activity-card .card-title {
+            padding-bottom: 1rem;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .activity-card .badge {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: 20px;
+        }
+
+        .activity-card .badge.bg-success {
+            background: #e8f5e9 !important;
+            color: #1b5e20;
+            border: 1px solid #a5d6a7;
+        }
+
+        .activity-card .badge.bg-primary {
+            background: #e3f2fd !important;
+            color: #0d47a1;
+            border: 1px solid #90caf9;
+        }
+
+        .current-activity {
+            min-height: 100px;
+        }
+
+        .current-works {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .current-works .alert {
+            margin: 0;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            background: #fff8e1;
+            border: 1px solid #ffe082;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .current-works .alert::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #ffc107;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .current-works .alert strong {
+            color: #ff6f00;
+            font-size: 0.9rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .current-works .alert p {
+            color: #424242;
+            font-size: 0.95rem;
+            margin: 0.5rem 0;
+        }
+
+        .current-works .alert small {
+            color: #757575;
+            font-size: 0.85rem;
+        }
+
+        .alert-success {
+            background: #f1f8e9 !important;
+            border: 1px solid #c5e1a5 !important;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alert-success::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #8bc34a;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .alert-success strong {
+            color: #33691e;
+            font-size: 0.9rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .alert-success p {
+            color: #424242;
+            font-size: 0.95rem;
+            margin: 0.5rem 0;
+        }
+
+        .alert-success small {
+            color: #757575;
+            font-size: 0.85rem;
+        }
+
+        .alert-light {
+            background: #fafafa !important;
+            border: 1px solid #eeeeee !important;
+            color: #757575;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .btn-sm.btn-primary {
+            background: linear-gradient(45deg, #1976d2, #2196f3);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            box-shadow: 0 2px 5px rgba(33, 150, 243, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-sm.btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(33, 150, 243, 0.4);
+        }
+
+        .btn-sm.btn-primary i {
+            font-size: 0.9rem;
+            margin-right: 0.4rem;
+        }
+
+        /* Spinner style */
+        .current-activity .spinner-border {
+            color: #2196f3 !important;
+            width: 2rem;
+            height: 2rem;
+        }
+
+        /* Stats Card Styles */
+        .stats-card {
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-card .card-body {
+            padding: 1.5rem;
+        }
+
+        .stats-card .card-title {
+            color: #1976d2;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .stats-card p {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            color: #424242;
+        }
+
+        .stats-card p strong {
+            color: #757575;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -431,8 +712,8 @@
         <!-- Personel Yönetimi -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h4>Personel/Stajyer Yönetimi</h4>
+                <div class="section-header">
+                    <h4 class="section-title">Personel/Stajyer Yönetimi</h4>
                     <a href="/" class="home-btn">
                         <i class="bi bi-house-door"></i>
                     </a>
@@ -448,9 +729,9 @@
         <!-- İş Takibi -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h4>Günlük İş Takibi</h4>
-                    <div>
+                <div class="section-header">
+                    <h4 class="section-title">Günlük İş Takibi</h4>
+                    <div class="date-select">
                         <input type="date" id="dateSelect" class="form-control">
                     </div>
                 </div>
@@ -459,32 +740,22 @@
 
         <div class="row mb-4">
             <div class="col-12">
-                <div class="timeline-wrapper" style="overflow-x: auto;">
-                    <div class="timeline-container">
-                        <div class="timeline-header-row">
-                            <div class="timeline-header">Personel/Stajyer</div>
-                            <div class="timeline-header">09:00</div>
-                            <div class="timeline-header">09:30</div>
-                            <div class="timeline-header">10:00</div>
-                            <div class="timeline-header">10:30</div>
-                            <div class="timeline-header">11:00</div>
-                            <div class="timeline-header">11:30</div>
-                            <div class="timeline-header">12:00</div>
-                            <div class="timeline-header">12:30</div>
-                            <div class="timeline-header">13:00</div>
-                            <div class="timeline-header">13:30</div>
-                            <div class="timeline-header">14:00</div>
-                            <div class="timeline-header">14:30</div>
-                            <div class="timeline-header">15:00</div>
-                            <div class="timeline-header">15:30</div>
-                            <div class="timeline-header">16:00</div>
-                            <div class="timeline-header">16:30</div>
-                            <div class="timeline-header">17:00</div>
-                            <div class="timeline-header">17:30</div>
-                            <div class="timeline-header">18:00</div>
-                        </div>
-                        <div id="timelineContent"></div>
-                    </div>
+                <div id="currentActivities" class="row g-4">
+                    <!-- Employee activities will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-4">
+
+        <!-- Tamamlanmış Videolar -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="section-header">
+                    <h4 class="section-title">Tamamlanmış Videolar</h4>
+                </div>
+                <div id="completedVideos" class="row g-4">
+                    <!-- Completed videos will be loaded here -->
                 </div>
             </div>
         </div>
@@ -494,7 +765,9 @@
         <!-- İstatistikler -->
         <div class="row">
             <div class="col-12">
-                <h4 class="mb-4">Personel İstatistikleri</h4>
+                <div class="section-header">
+                    <h4 class="section-title">Personel İstatistikleri</h4>
+                </div>
                 <div id="statsContainer" class="row g-4"></div>
             </div>
         </div>
@@ -551,6 +824,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js"></script>
     <script>
         let employees = [];
+        let pollingInterval; // Add polling interval variable
         const workDetailsModal = new bootstrap.Modal(document.getElementById('workDetailsModal'));
         const addEmployeeModal = new bootstrap.Modal(document.getElementById('addEmployeeModal'));
         const tooltip = document.createElement('div');
@@ -558,17 +832,216 @@
         document.body.appendChild(tooltip);
 
         document.addEventListener('DOMContentLoaded', () => {
-            const today = new Date().toISOString().split('T')[0];
+            // Get today's date in local timezone
+            const now = new Date();
+            const today = now.getFullYear() + '-' + 
+                         String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                         String(now.getDate()).padStart(2, '0');
+            
             document.getElementById('dateSelect').value = today;
             
             loadEmployees().then(() => {
                 loadTimeline();
                 loadStats();
+                loadCompletedVideos();
+                
+                // Start polling after initial load
+                startPolling();
             });
 
             document.getElementById('dateSelect').addEventListener('change', () => {
                 loadTimeline();
+                loadCompletedVideos();
             });
+        });
+
+        // Add polling functions
+        function startPolling() {
+            // Poll every 5 seconds
+            pollingInterval = setInterval(() => {
+                refreshData();
+            }, 5000); // 5 saniyede bir güncelle
+        }
+
+        function stopPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+            }
+        }
+
+        async function refreshData() {
+            try {
+                // Refresh completed videos and employee activities
+                await Promise.all([
+                    loadCompletedVideos(true), // Add silent parameter
+                    refreshEmployeeActivities()
+                ]);
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+            }
+        }
+
+        // Modify loadCompletedVideos to support silent updates
+        async function loadCompletedVideos(silent = false) {
+            const container = document.getElementById('completedVideos');
+            const selectedDate = document.getElementById('dateSelect').value;
+
+            try {
+                const response = await fetch(`/api/completed-videos?date=${selectedDate}`);
+                const result = await response.json();
+
+                if (result.type === 'success' && result.data.length > 0) {
+                    const videos = result.data;
+                    const newContent = generateCompletedVideosHTML(videos);
+
+                    // Compare with current content before updating
+                    if (container.innerHTML !== newContent) {
+                        container.innerHTML = newContent;
+                    }
+                } else {
+                    const noContentHTML = `
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                İncelenecek video bulunmuyor
+                            </div>
+                        </div>
+                    `;
+                    if (container.innerHTML !== noContentHTML) {
+                        container.innerHTML = noContentHTML;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading completed videos:', error);
+                if (!silent) {
+                    container.innerHTML = `
+                        <div class="col-12">
+                            <div class="alert alert-danger">
+                                Videolar yüklenirken bir hata oluştu
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function generateCompletedVideosHTML(videos) {
+            if (!videos || videos.length === 0) {
+                return `
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            İncelenecek video bulunmuyor
+                        </div>
+                    </div>
+                `;
+            }
+
+            return videos.map(video => `
+                <div class="col-12 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h5 class="card-title mb-1">
+                                        ${video.employeeName}
+                                        ${video.workType === 'revize' ? 
+                                            '<span class="badge bg-warning ms-2">Revize</span>' : ''}
+                                        ${video.revisionStatus === 'approved' ? 
+                                            '<span class="badge bg-success ms-2">Onaylandı</span>' : 
+                                         video.workType === 'revize' && video.status === 'completed' ? 
+                                            '<span class="badge bg-info ms-2">Revize Edildi</span>' :
+                                         video.revisionStatus === 'needs_revision' ?
+                                            '<span class="badge bg-warning ms-2">Revizyon Gerekli</span>' : ''}
+                                    </h5>
+                                    <p class="text-muted mb-2">
+                                        <small>
+                                            <i class="bi bi-clock me-1"></i>
+                                            ${formatTime(video.startTime)} - ${formatTime(video.endTime)}
+                                            (${video.duration})
+                                        </small>
+                                    </p>
+                                    <p class="mb-2">${video.description}</p>
+                                    ${video.revisionNote ? `
+                                        <div class="alert alert-warning mb-2">
+                                            <strong>Revizyon Notu:</strong><br>
+                                            ${video.revisionNote}
+                                        </div>
+                                    ` : ''}
+                                    ${video.reviews && video.reviews.length > 0 ? `
+                                        <div class="alert alert-info mb-2">
+                                            <strong>İnceleme Yorumları:</strong><br>
+                                            ${video.reviews.map(review => `
+                                                <div class="mt-2">
+                                                    <small class="text-muted">${formatTime(review.createdAt)}</small><br>
+                                                    ${review.comment}
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                <div class="d-flex gap-2">
+                                    ${video.videoLink ? `
+                                        <a href="${video.videoLink}" target="_blank" 
+                                           class="btn btn-primary btn-sm">
+                                            <i class="bi bi-play-circle me-1"></i>
+                                            Videoyu Görüntüle
+                                        </a>
+                                    ` : ''}
+                                    <button class="btn btn-info btn-sm" onclick="addComment('${video.id}')">
+                                        <i class="bi bi-chat-dots me-1"></i>
+                                        Yorum Yap
+                                    </button>
+                                    ${video.revisionStatus === 'needs_revision' ? `
+                                        <button class="btn btn-success btn-sm" onclick="approveVideo('${video.id}')">
+                                            <i class="bi bi-check-circle me-1"></i>
+                                            Onayla
+                                        </button>
+                                    ` : video.workType === 'revize' && video.status === 'completed' ? `
+                                        <button class="btn btn-success btn-sm" onclick="approveVideo('${video.id}')">
+                                            <i class="bi bi-check-circle me-1"></i>
+                                            Onayla
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Add function to refresh employee activities
+        async function refreshEmployeeActivities() {
+            const selectedDate = document.getElementById('dateSelect').value;
+            
+            try {
+                const response = await fetch('/api/employees?includeDeleted=true');
+                const data = await response.json();
+                
+                if (data.type !== 'success' || !Array.isArray(data.data)) {
+                    return;
+                }
+
+                const allEmployees = data.data;
+                
+                for (const employee of allEmployees) {
+                    if (employee.deletedAt && new Date(selectedDate) > new Date(employee.deletedAt)) {
+                        continue;
+                    }
+
+                    // Update each employee's activity
+                    const activityContainer = document.getElementById(`activity-${employee.id}`);
+                    if (activityContainer) {
+                        await loadEmployeeActivity(employee.id, selectedDate);
+                    }
+                }
+            } catch (error) {
+                console.error('Error refreshing employee activities:', error);
+            }
+        }
+
+        // Update cleanup when leaving the page
+        window.addEventListener('beforeunload', () => {
+            stopPolling();
         });
 
         function openAddEmployeeModal() {
@@ -702,7 +1175,7 @@
         }
 
         async function loadTimeline() {
-            const container = document.getElementById('timelineContent');
+            const container = document.getElementById('currentActivities');
             container.innerHTML = '';
             const selectedDate = document.getElementById('dateSelect').value;
 
@@ -721,157 +1194,225 @@
                         continue;
                     }
 
-                    const row = document.createElement('div');
-                    row.className = 'timeline';
-                    
-                    const nameCell = document.createElement('div');
-                    nameCell.className = 'timeline-employee';
-                    nameCell.textContent = employee.name;
-                    row.appendChild(nameCell);
+                    // Create employee activity card
+                    const activityCard = document.createElement('div');
+                    activityCard.className = 'col-md-6 col-lg-4';
+                    activityCard.innerHTML = `
+                        <div class="card activity-card ${employee.type}">
+                            <div class="card-body">
+                                <h5 class="card-title d-flex justify-content-between align-items-center">
+                                    <span>${employee.name}</span>
+                                    <span class="badge ${employee.type === 'intern' ? 'bg-success' : 'bg-primary'}">${employee.type === 'intern' ? 'Stajyer' : 'Personel'}</span>
+                                </h5>
+                                <div class="current-activity" id="activity-${employee.id}">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Yükleniyor...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(activityCard);
 
-                    // Create all time slots first
-                    const slots = {};
-                    for (let i = 0; i < 19; i++) {
-                        const slot = document.createElement('div');
-                        slot.className = 'timeline-slot';
-                        
-                        const hour = Math.floor(i / 2) + 9;
-                        const minutes = (i % 2) * 30;
-                        const timeStr = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-                        slot.setAttribute('data-time', timeStr);
-                        slots[timeStr] = slot;
-
-                        const line = document.createElement('div');
-                        line.className = 'timeline-line';
-                        slot.appendChild(line);
-                        row.appendChild(slot);
-                    }
-
-                    container.appendChild(row);
-
-                    try {
-                        const workResponse = await fetch(`/api/daily-timeline?employeeId=${employee.id}&date=${selectedDate}`);
-                        const workData = await workResponse.json();
-
-                        if (workData.type === 'success' && workData.data) {
-                            workData.data.forEach(slot => {
-                                if (slot.works && slot.works.length > 0) {
-                                    slot.works.forEach(work => {
-                                        const startTime = new Date(work.startTime);
-                                        const endTime = work.endTime ? new Date(work.endTime) : new Date();
-                                        
-                                        // İşin başlangıç ve bitiş saatlerini al
-                                        const startHour = startTime.getHours();
-                                        const startMinutes = startTime.getMinutes();
-                                        const endHour = endTime.getHours();
-                                        const endMinutes = endTime.getMinutes();
-
-                                        // İşin başladığı slot'u bul
-                                        const startSlotHour = startHour.toString().padStart(2, '0');
-                                        const startSlotMinutes = Math.floor(startMinutes / 30) * 30;
-                                        const startSlotTime = `${startSlotHour}:${startSlotMinutes.toString().padStart(2, '0')}`;
-
-                                        // Calculate slot index (0-based) from 9:00
-                                        const slotIndex = (startHour - 9) * 2 + Math.floor(startMinutes / 30);
-                                        
-                                        // Calculate exact position within the slot
-                                        const startOffsetMinutes = (startMinutes % 30);
-                                        const startOffsetPercentage = (startOffsetMinutes / 30) * 100;
-
-                                        // Create single work bar
-                                        const bar = document.createElement('div');
-                                        bar.className = `work-bar ${work.status}`;
-                                        
-                                        // Calculate total duration and width
-                                        let endTimeForCalc = work.status === 'completed' ? endTime : new Date();
-                                        if (endTimeForCalc < startTime) {
-                                            endTimeForCalc.setDate(endTimeForCalc.getDate() + 1);
-                                        }
-                                        
-                                        const totalMinutes = Math.round((endTimeForCalc - startTime) / (1000 * 60));
-                                        const totalWidth = (totalMinutes / 30) * 100;
-                                        
-                                        bar.style.position = 'absolute';
-                                        bar.style.left = `${startOffsetPercentage}%`;
-                                        bar.style.width = `${totalWidth}%`;
-                                        bar.style.zIndex = 10;
-
-                                        // Add the bar to the first slot
-                                        const targetSlot = row.querySelectorAll('.timeline-slot')[slotIndex + 1];
-                                        if (targetSlot) {
-                                            const existingBars = targetSlot.querySelectorAll('.work-bar');
-                                            
-                                            if (existingBars.length > 0) {
-                                                // İki iş varsa
-                                                const existingBar = existingBars[0];
-                                                
-                                                // Mevcut barı üst pozisyona taşı
-                                                existingBar.style.height = '20px';
-                                                existingBar.classList.add('top');
-                                                
-                                                // Yeni barı alt pozisyona ekle
-                                                bar.style.height = '20px';
-                                                bar.classList.add('bottom');
-                                            }
-                                            
-                                            bar.setAttribute('data-work-id', work.id);
-                                            bar.addEventListener('click', () => showWorkDetails(work));
-                                            bar.addEventListener('mouseenter', (e) => showTooltip(e, work));
-                                            bar.addEventListener('mouseleave', hideTooltip);
-                                            targetSlot.appendChild(bar);
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    } catch (error) {
-                        console.error('Error loading timeline for employee:', error);
-                    }
+                    // Load employee's current activity
+                    loadEmployeeActivity(employee.id, selectedDate);
                 }
             } catch (error) {
-                console.error('Error loading employees for timeline:', error);
+                console.error('Error loading activities:', error);
             }
         }
 
-        // Add auto-refresh every 5 minutes
-        setInterval(loadTimeline, 300000); // 300000 ms = 5 minutes
-
-        function createWorkBar(work, startTime, endTime) {
-            const bar = document.createElement('div');
-            bar.className = `work-bar ${work.status} ${work.workType}`;
-            
-            // Calculate progress for in-progress works
-            if (work.status !== 'completed') {
-                const now = new Date();
-                const start = new Date(work.startTime);
-                const progressPercent = Math.min(100, ((now - start) / (1000 * 60 * 60)) * 100);
+        async function loadEmployeeActivity(employeeId, selectedDate) {
+            try {
+                console.log('Loading activity for employee:', employeeId, 'date:', selectedDate);
+                const activityContainer = document.getElementById(`activity-${employeeId}`);
                 
-                const progressBar = document.createElement('div');
-                progressBar.className = 'progress-bar';
-                progressBar.style.width = `${progressPercent}%`;
-                bar.appendChild(progressBar);
+                if (!employeeId) {
+                    console.error('Employee ID is missing');
+                    throw new Error('Employee ID is required');
+                }
+
+                const workResponse = await fetch(`/api/works`);
+                if (!workResponse.ok) {
+                    console.error('Work response not ok:', workResponse.status, workResponse.statusText);
+                    throw new Error('Failed to fetch works');
+                }
+
+                const allWorks = await workResponse.json();
+                console.log('All works loaded:', allWorks.length);
+
+                // Filter works for the selected employee and date
+                const selectedDateStart = new Date(selectedDate);
+                selectedDateStart.setHours(0, 0, 0, 0);
+                const selectedDateEnd = new Date(selectedDate);
+                selectedDateEnd.setHours(23, 59, 59, 999);
+
+                console.log('Filtering works for date range:', selectedDateStart, selectedDateEnd);
+
+                const todaysWorks = allWorks.filter(work => {
+                    try {
+                        const workDate = new Date(work.startTime);
+                        const workEmployeeId = work.employeeId ? work.employeeId.toString() : null;
+                        const currentEmployeeId = employeeId ? employeeId.toString() : null;
+
+                        console.log('Comparing work:', {
+                            workEmployeeId,
+                            currentEmployeeId,
+                            workDate,
+                            startTime: work.startTime
+                        });
+
+                        return workEmployeeId === currentEmployeeId &&
+                               workDate >= selectedDateStart &&
+                               workDate <= selectedDateEnd;
+                    } catch (filterError) {
+                        console.error('Error filtering work:', filterError, work);
+                        return false;
+                    }
+                });
+
+                console.log('Filtered works:', todaysWorks.length);
+
+                const currentWorks = todaysWorks.filter(work => work.status === 'in_progress');
+                console.log('Current works:', currentWorks.length);
+
+                if (currentWorks.length > 0) {
+                    // Show all current works
+                    let worksContent = `<div class="current-works">`;
+                    currentWorks.forEach((work, index) => {
+                        worksContent += `
+                            <div class="alert alert-warning mb-2">
+                                <strong>Devam Eden İş ${currentWorks.length > 1 ? (index + 1) : ''}:</strong> 
+                                ${work.workType === 'video' ? 'Video' : 
+                                  work.workType === 'revize' ? 'Video Revize' : 
+                                  work.workType === 'review' ? 'Video İnceleme' : 'Yazılım'}
+                                <p class="mb-0 mt-1">${work.description}</p>
+                                <small class="text-muted">Başlangıç: ${formatTime(work.startTime)}</small>
+                            </div>
+                        `;
+                    });
+                    worksContent += `</div>`;
+                    activityContainer.innerHTML = worksContent;
+                } else {
+                    activityContainer.innerHTML = `
+                        <div class="alert alert-light mb-0">
+                            Şu anda aktif bir iş yapmıyor
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error in loadEmployeeActivity:', error);
+                console.error('Employee ID:', employeeId);
+                console.error('Selected Date:', selectedDate);
+                console.error('Stack trace:', error.stack);
+
+                const activityContainer = document.getElementById(`activity-${employeeId}`);
+                if (activityContainer) {
+                    activityContainer.innerHTML = `
+                        <div class="alert alert-light mb-0">
+                            Şu anda aktif bir iş yapmıyor
+                        </div>
+                    `;
+                } else {
+                    console.error('Activity container not found for employee:', employeeId);
+                }
             }
-            
-            // Add tooltip and click events
-            bar.setAttribute('data-tooltip', createTooltipContent(work));
-            bar.addEventListener('mouseenter', showTooltip);
-            bar.addEventListener('mouseleave', hideTooltip);
-            bar.addEventListener('click', () => showWorkDetails(work));
-            
-            return bar;
         }
 
-        function formatDuration(minutes) {
-            const hours = Math.floor(minutes / 60);
-            const mins = minutes % 60;
-            const secs = Math.round((mins % 1) * 60);
-            
-            let result = '';
-            if (hours > 0) result += `${hours} saat `;
-            if (mins > 0) result += `${Math.floor(mins)} dakika `;
-            if (secs > 0) result += `${secs} saniye`;
-            
-            return result.trim() || '0 saniye';
+        async function addReview(videoId) {
+            try {
+                // Önce video bilgilerini al
+                const videoResponse = await fetch(`/api/work/${videoId}`);
+                const video = await videoResponse.json();
+
+                const { value: comment } = await Swal.fire({
+                    title: 'Video İncelemesi',
+                    input: 'textarea',
+                    inputLabel: 'Yorum',
+                    inputPlaceholder: 'Yorumunuzu yazın...',
+                    showCancelButton: true,
+                    confirmButtonText: 'Gönder',
+                    cancelButtonText: 'İptal',
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'Lütfen bir yorum yazın!';
+                        }
+                    }
+                });
+
+                if (comment) {
+                    // Yeni review oluştur
+                    const review = {
+                        reviewerId: 'admin',
+                        reviewerName: 'Admin',
+                        comment: comment,
+                        createdAt: new Date().toISOString()
+                    };
+
+                    // Mevcut reviews'ları al ve yeni review'ı ekle
+                    const currentReviews = video.reviews || [];
+                    currentReviews.push(review);
+
+                    // Videoyu güncelle
+                    const updateResponse = await fetch(`/api/work/${videoId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            reviews: currentReviews,
+                            revisionStatus: 'needs_revision',
+                            revisionNote: comment,
+                            isBeingReviewed: true
+                        })
+                    });
+
+                    if (!updateResponse.ok) {
+                        throw new Error('Video güncellenirken bir hata oluştu');
+                    }
+
+                    showAlert('Başarılı', 'Yorum başarıyla eklendi', 'success');
+                    loadCompletedVideos();
+                }
+            } catch (error) {
+                showAlert('Hata', error.message, 'error');
+            }
+        }
+
+        async function approveVideo(videoId) {
+            try {
+                // Önce video bilgilerini al
+                const videoResponse = await fetch(`/api/work/${videoId}`);
+                const video = await videoResponse.json();
+
+                const result = await Swal.fire({
+                    title: 'Video Onayı',
+                    text: 'Bu videoyu onaylamak istediğinize emin misiniz?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Onayla',
+                    cancelButtonText: 'İptal'
+                });
+
+                if (result.isConfirmed) {
+                    const response = await fetch(`/api/work/${videoId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            revisionStatus: 'approved',
+                            isBeingReviewed: true,
+                            isRevisionCompleted: true
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Video onaylanırken bir hata oluştu');
+                    }
+
+                    showAlert('Başarılı', 'Video başarıyla onaylandı', 'success');
+                    loadCompletedVideos();
+                }
+            } catch (error) {
+                showAlert('Hata', error.message, 'error');
+            }
         }
 
         async function loadStats() {
@@ -1109,6 +1650,50 @@
                 loadTimeline();
             }
         };
+
+        // Yeni yorum ekleme fonksiyonu
+        async function addComment(videoId) {
+            try {
+                const result = await Swal.fire({
+                    title: 'Video Yorumu',
+                    input: 'textarea',
+                    inputLabel: 'Yorumunuz',
+                    inputPlaceholder: 'Yorum yazın...',
+                    showCancelButton: true,
+                    confirmButtonText: 'Gönder',
+                    cancelButtonText: 'İptal',
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'Lütfen bir yorum yazın!';
+                        }
+                    }
+                });
+
+                if (result.isConfirmed) {
+                    const response = await fetch(`/api/work/${videoId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            revisionNote: result.value,
+                            workStatus: 'needs_revision',
+                            adminReviewed: true,
+                            needsEmployeeReview: false,
+                            needsAdminReview: false,
+                            lastReviewerType: 'admin'
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Yorum kaydedilirken bir hata oluştu');
+                    }
+
+                    showAlert('Başarılı', 'Yorum başarıyla eklendi', 'success');
+                    loadCompletedVideos();
+                }
+            } catch (error) {
+                showAlert('Hata', error.message, 'error');
+            }
+        }
     </script>
 </body>
 </html>

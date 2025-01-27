@@ -23,9 +23,9 @@ var (
 
 type Employee struct {
 	ID        primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-	Name      string            `json:"name" bson:"name"`
-	Type      string            `json:"type" bson:"type"` // "staff" or "intern"
-	DeletedAt *time.Time        `json:"deletedAt,omitempty" bson:"deletedAt,omitempty"`
+	Name      string             `json:"name" bson:"name"`
+	Type      string             `json:"type" bson:"type"` // "staff" or "intern"
+	DeletedAt *time.Time         `json:"deletedAt,omitempty" bson:"deletedAt,omitempty"`
 }
 
 type WorkStats struct {
@@ -40,32 +40,53 @@ type TimelineSlot struct {
 }
 
 type Work struct {
-	ID              primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-	EmployeeID      primitive.ObjectID `json:"employeeId" bson:"employeeId"`
-	EmployeeName    string             `json:"employeeName" bson:"employeeName"`
-	WorkType        string             `json:"workType" bson:"workType"`                                   // "software", "video", "review"
-	Description     string             `json:"description" bson:"description"`                             // Work description
-	VideoLink       string             `json:"videoLink" bson:"videoLink"`                                 // Optional
-	IsFirstVideo    bool               `json:"isFirstVideo" bson:"isFirstVideo"`                           // Only for videos
-	IsRevision      bool               `json:"isRevision" bson:"isRevision"`                               // Whether this is a revision
-	IsReviewed      bool               `json:"isReviewed" bson:"isReviewed"`                               // Whether this video has been reviewed
-	IsBeingReviewed bool               `json:"isBeingReviewed" bson:"isBeingReviewed"`                     // Whether this video is currently being revised
-	RevisedBy       primitive.ObjectID `json:"revisedBy,omitempty" bson:"revisedBy,omitempty"`             // Employee who did the revision
-	RevisedByName   string             `json:"revisedByName,omitempty" bson:"revisedByName,omitempty"`     // Name of employee who did the revision
-	ReviewedVideoID primitive.ObjectID `json:"reviewedVideoId,omitempty" bson:"reviewedVideoId,omitempty"` // ID of the video being reviewed
-	Reviews         []Review           `json:"reviews" bson:"reviews"`                                     // Reviews for this video
-	StartTime       time.Time          `json:"startTime" bson:"startTime"`
-	EndTime         time.Time          `json:"endTime,omitempty" bson:"endTime,omitempty"`
-	Duration        string             `json:"duration,omitempty" bson:"duration,omitempty"`
-	DurationMinutes int                `json:"durationMinutes,omitempty" bson:"durationMinutes,omitempty"`
-	Status          string             `json:"status" bson:"status"` // "in_progress" or "completed"
+	ID                  primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	EmployeeID          primitive.ObjectID `json:"employeeId" bson:"employeeId"`
+	EmployeeName        string             `json:"employeeName" bson:"employeeName"`
+	WorkType            string             `json:"workType" bson:"workType"`                                   // "software", "video", "review", "revize"
+	Description         string             `json:"description" bson:"description"`                             // Work description
+	VideoLink           string             `json:"videoLink" bson:"videoLink"`                                 // Optional
+	IsFirstVideo        bool               `json:"isFirstVideo" bson:"isFirstVideo"`                           // Only for videos
+	IsRevision          bool               `json:"isRevision" bson:"isRevision"`                               // Whether this is a revision
+	IsReviewed          bool               `json:"isReviewed" bson:"isReviewed"`                               // Whether this video has been reviewed
+	IsRevisionCompleted bool               `json:"isRevisionCompleted" bson:"isRevisionCompleted"`             // Whether the revision is completed
+	IsBeingReviewed     bool               `json:"isBeingReviewed" bson:"isBeingReviewed"`                     // Whether this video is currently being revised
+	RevisedBy           primitive.ObjectID `json:"revisedBy,omitempty" bson:"revisedBy,omitempty"`             // Employee who did the revision
+	RevisedByName       string             `json:"revisedByName,omitempty" bson:"revisedByName,omitempty"`     // Name of employee who did the revision
+	ReviewedVideoID     primitive.ObjectID `json:"reviewedVideoId,omitempty" bson:"reviewedVideoId,omitempty"` // ID of the video being reviewed
+	Reviews             []Review           `json:"reviews" bson:"reviews"`                                     // Reviews for this video
+	StartTime           time.Time          `json:"startTime" bson:"startTime"`
+	EndTime             time.Time          `json:"endTime,omitempty" bson:"endTime,omitempty"`
+	Duration            string             `json:"duration,omitempty" bson:"duration,omitempty"`
+	DurationMinutes     int                `json:"durationMinutes,omitempty" bson:"durationMinutes,omitempty"`
+	Status              string             `json:"status" bson:"status"` // "in_progress" or "completed"
+	RevisionStatus      string             `json:"revisionStatus,omitempty" bson:"revisionStatus,omitempty"`
+	RevisionNote        string             `json:"revisionNote,omitempty" bson:"revisionNote,omitempty"`
+	WorkStatus          string             `json:"workStatus" bson:"workStatus"`                   // "pending_review", "in_review", "needs_revision", "approved"
+	AdminReviewed       bool               `json:"adminReviewed" bson:"adminReviewed"`             // Admin tarafından incelenip incelenmediği
+	LastReviewType      string             `json:"lastReviewType" bson:"lastReviewType"`           // "admin" veya "employee"
+	RevisionCount       int                `json:"revisionCount" bson:"revisionCount"`             // Kaç kez revize edildiği
+	RevisionHistory     []RevisionRecord   `json:"revisionHistory" bson:"revisionHistory"`         // Revizyon geçmişi
+	NeedsEmployeeReview bool               `json:"needsEmployeeReview" bson:"needsEmployeeReview"` // Personel incelemesi gerekiyor mu
+	NeedsAdminReview    bool               `json:"needsAdminReview" bson:"needsAdminReview"`       // Admin incelemesi gerekiyor mu
+	ReviewCycle         int                `json:"reviewCycle" bson:"reviewCycle"`                 // Kaçıncı inceleme döngüsünde
+	LastReviewerType    string             `json:"lastReviewerType" bson:"lastReviewerType"`       // Son incelemeyi yapan (admin/employee)
 }
 
 type Review struct {
-	ReviewerID   primitive.ObjectID `json:"reviewerId" bson:"reviewerId"`
-	ReviewerName string             `json:"reviewerName" bson:"reviewerName"`
-	Comment      string             `json:"comment" bson:"comment"`
-	CreatedAt    time.Time          `json:"createdAt" bson:"createdAt"`
+	ReviewerID   string    `json:"reviewerId" bson:"reviewerId"`
+	ReviewerName string    `json:"reviewerName" bson:"reviewerName"`
+	Comment      string    `json:"comment" bson:"comment"`
+	CreatedAt    time.Time `json:"createdAt" bson:"createdAt"`
+}
+
+type RevisionRecord struct {
+	ReviewerId   string    `json:"reviewerId" bson:"reviewerId"`     // İnceleme yapan kişi ID'si
+	ReviewerName string    `json:"reviewerName" bson:"reviewerName"` // İnceleme yapan kişi adı
+	ReviewType   string    `json:"reviewType" bson:"reviewType"`     // "admin" veya "employee"
+	Comment      string    `json:"comment" bson:"comment"`           // İnceleme yorumu
+	RevisionDate time.Time `json:"revisionDate" bson:"revisionDate"` // İnceleme tarihi
+	Status       string    `json:"status" bson:"status"`             // "needs_revision" veya "approved"
 }
 
 func initMongoDB() error {
@@ -447,6 +468,11 @@ func createWork(c *fiber.Ctx) error {
 	work.ID = primitive.NewObjectID()
 	work.Status = "in_progress"
 
+	if work.WorkType == "video" {
+		work.WorkStatus = "pending_review"
+		work.RevisionCount = 0
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -466,16 +492,18 @@ func updateWork(c *fiber.Ctx) error {
 	}
 
 	var update struct {
-		EndTime         time.Time          `json:"endTime"`
-		VideoLink       string             `json:"videoLink"`
-		Description     string             `json:"description"`
-		RevisionStatus  string             `json:"revisionStatus"`
-		RevisionNote    string             `json:"revisionNote"`
-		Status          string             `json:"status"`
-		Reviews         []Review           `json:"reviews"`
-		IsBeingReviewed bool               `json:"isBeingReviewed"`
-		RevisedBy       primitive.ObjectID `json:"revisedBy"`
-		RevisedByName   string             `json:"revisedByName"`
+		EndTime             time.Time `json:"endTime"`
+		VideoLink           string    `json:"videoLink"`
+		Description         string    `json:"description"`
+		RevisionStatus      string    `json:"revisionStatus"`
+		RevisionNote        string    `json:"revisionNote"`
+		Status              string    `json:"status"`
+		Reviews             []Review  `json:"reviews"`
+		IsBeingReviewed     bool      `json:"isBeingReviewed"`
+		IsRevisionCompleted bool      `json:"isRevisionCompleted"`
+		WorkType            string    `json:"workType"`
+		AdminReviewed       bool      `json:"adminReviewed"`
+		WorkStatus          string    `json:"workStatus"`
 	}
 	if err := c.BodyParser(&update); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
@@ -488,18 +516,6 @@ func updateWork(c *fiber.Ctx) error {
 	err = db.Collection("works").FindOne(ctx, bson.M{"_id": id}).Decode(&work)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Work not found"})
-	}
-
-	// Video and revision editing restrictions
-	if work.WorkType == "video" || work.WorkType == "revize" {
-		// If the work is completed, prevent description and URL changes
-		if work.Status == "completed" {
-			if update.Description != "" || update.VideoLink != "" {
-				return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-					"error": "Tamamlanmış video düzenlenemez",
-				})
-			}
-		}
 	}
 
 	updateFields := bson.M{}
@@ -521,28 +537,85 @@ func updateWork(c *fiber.Ctx) error {
 	}
 	if update.RevisionNote != "" {
 		updateFields["revisionNote"] = update.RevisionNote
+		// Revizyon notu eklendiğinde otomatik olarak bir review oluştur
+		review := Review{
+			ReviewerID:   "admin",
+			ReviewerName: "Admin",
+			Comment:      update.RevisionNote,
+			CreatedAt:    time.Now(),
+		}
+		if work.Reviews == nil {
+			work.Reviews = []Review{}
+		}
+		work.Reviews = append(work.Reviews, review)
+		updateFields["reviews"] = work.Reviews
 	}
 	if update.Status != "" {
 		updateFields["status"] = update.Status
 	}
 	if len(update.Reviews) > 0 {
 		updateFields["reviews"] = update.Reviews
-		// Video incelemesi tamamlandığında, incelenen videoyu güncelle
-		if work.ReviewedVideoID != primitive.NilObjectID {
-			_, err = db.Collection("works").UpdateOne(
-				ctx,
-				bson.M{"_id": work.ReviewedVideoID},
-				bson.M{"$set": bson.M{"isReviewed": true}},
-			)
-			if err != nil {
-				log.Printf("Error updating reviewed video status: %v", err)
-			}
-		}
 	}
 	if update.IsBeingReviewed {
 		updateFields["isBeingReviewed"] = true
-		updateFields["revisedBy"] = update.RevisedBy
-		updateFields["revisedByName"] = update.RevisedByName
+	}
+	if update.IsRevisionCompleted {
+		updateFields["isRevisionCompleted"] = true
+	}
+	if update.WorkType != "" {
+		updateFields["workType"] = update.WorkType
+	}
+
+	if work.WorkType == "video" || work.WorkType == "revize" {
+		// Video tamamlandığında
+		if update.Status == "completed" && work.Status != "completed" {
+			updateFields["workStatus"] = "pending_review"
+		}
+
+		// Admin incelemesi tamamlandığında
+		if update.AdminReviewed {
+			if update.WorkStatus == "needs_revision" {
+				// Revizyon gerekiyorsa
+				record := RevisionRecord{
+					ReviewerId:   "admin",
+					ReviewerName: "Admin",
+					ReviewType:   "admin",
+					Comment:      update.RevisionNote,
+					RevisionDate: time.Now(),
+					Status:       "needs_revision",
+				}
+				updateFields["revisionHistory"] = append(work.RevisionHistory, record)
+				updateFields["revisionCount"] = work.RevisionCount + 1
+			} else if update.WorkStatus == "approved" {
+				// Video onaylandıysa
+				record := RevisionRecord{
+					ReviewerId:   "admin",
+					ReviewerName: "Admin",
+					ReviewType:   "admin",
+					Comment:      "Video onaylandı",
+					RevisionDate: time.Now(),
+					Status:       "approved",
+				}
+				updateFields["revisionHistory"] = append(work.RevisionHistory, record)
+				updateFields["workStatus"] = "approved"
+			}
+		}
+
+		// Personel incelemesi tamamlandığında
+		if len(update.Reviews) > len(work.Reviews) {
+			lastReview := update.Reviews[len(update.Reviews)-1]
+			record := RevisionRecord{
+				ReviewerId:   lastReview.ReviewerID,
+				ReviewerName: lastReview.ReviewerName,
+				ReviewType:   "employee",
+				Comment:      lastReview.Comment,
+				RevisionDate: lastReview.CreatedAt,
+				Status:       "needs_revision",
+			}
+			updateFields["revisionHistory"] = append(work.RevisionHistory, record)
+			updateFields["revisionCount"] = work.RevisionCount + 1
+			updateFields["workStatus"] = "needs_revision"
+		}
 	}
 
 	result, err := db.Collection("works").UpdateOne(
@@ -674,12 +747,18 @@ func getCompletedVideos(c *fiber.Ctx) error {
 		"status": "completed",
 		"$or": []bson.M{
 			{
-				"workType":   "video",
-				"isReviewed": bson.M{"$ne": true},
+				// Sadece revizesi tamamlanmış videolar görünecek
+				"workType":            "revize",
+				"status":              "completed",
+				"isRevisionCompleted": true,
+				"needsEmployeeReview": false, // Personel incelemesi beklemeyenler
 			},
 			{
-				"workType":   "revize",
-				"isReviewed": bson.M{"$ne": true},
+				// veya revizyonu tamamlanmış normal videolar
+				"workType":            "video",
+				"status":              "completed",
+				"isRevisionCompleted": true,
+				"needsEmployeeReview": false, // Personel incelemesi beklemeyenler
 			},
 		},
 	}
