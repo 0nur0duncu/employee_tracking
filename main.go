@@ -722,12 +722,10 @@ func getCompletedVideos(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// Get date filter from query parameters
 	dateStr := c.Query("date")
 	var startTime, endTime time.Time
 
 	if dateStr != "" {
-		// Parse the date string
 		date, err := time.Parse("2006-01-02", dateStr)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -738,32 +736,19 @@ func getCompletedVideos(c *fiber.Ctx) error {
 			})
 		}
 
-		// Set start time to beginning of the day and end time to end of the day
 		startTime = time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.Local)
 		endTime = time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, time.Local)
 	}
 
+	// Ana video işleri için filtre
 	filter := bson.M{
-		"status": "completed",
-		"$or": []bson.M{
-			{
-				// Sadece revizesi tamamlanmış videolar görünecek
-				"workType":            "revize",
-				"status":              "completed",
-				"isRevisionCompleted": true,
-				"needsEmployeeReview": false, // Personel incelemesi beklemeyenler
-			},
-			{
-				// veya revizyonu tamamlanmış normal videolar
-				"workType":            "video",
-				"status":              "completed",
-				"isRevisionCompleted": true,
-				"needsEmployeeReview": false, // Personel incelemesi beklemeyenler
-			},
+		"workType": "video",
+		"status":   "completed",
+		"revisionStatus": bson.M{
+			"$nin": []string{"approved"}, // Onaylanmamış olanlar
 		},
 	}
 
-	// Add date filter if provided
 	if dateStr != "" {
 		filter["endTime"] = bson.M{
 			"$gte": startTime,
@@ -771,12 +756,13 @@ func getCompletedVideos(c *fiber.Ctx) error {
 		}
 	}
 
+	// Ana videoları bul
 	cursor, err := db.Collection("works").Find(ctx, filter)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"type":  "error",
 			"title": "Hata",
-			"text":  "Tamamlanmış videolar yüklenirken bir hata oluştu",
+			"text":  "Videolar yüklenirken bir hata oluştu",
 			"data":  []Work{},
 		})
 	}
@@ -785,11 +771,45 @@ func getCompletedVideos(c *fiber.Ctx) error {
 	var videos []Work
 	if err = cursor.All(ctx, &videos); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"type":  "error",
-			"title": "Hata",
-			"text":  "Tamamlanmış videolar yüklenirken bir hata oluştu",
-			"data":  []Work{},
+			"type": "error",
+			"text": "Videolar yüklenirken bir hata oluştu",
+			"data": []Work{},
 		})
+	}
+
+	// Her video için revizyon işlerini bul
+	for i := range videos {
+		revisionFilter := bson.M{
+			"workType":        "revize",
+			"reviewedVideoId": videos[i].ID,
+		}
+
+		revisionCursor, err := db.Collection("works").Find(ctx, revisionFilter)
+		if err != nil {
+			continue
+		}
+		defer revisionCursor.Close(ctx)
+
+		var revisions []Work
+		if err = revisionCursor.All(ctx, &revisions); err != nil {
+			continue
+		}
+
+		// Revizyonları ana video ile birleştir
+		if len(revisions) > 0 {
+			videos[i].RevisionHistory = []RevisionRecord{}
+			for _, rev := range revisions {
+				record := RevisionRecord{
+					ReviewerId:   rev.EmployeeID.Hex(),
+					ReviewerName: rev.EmployeeName,
+					ReviewType:   "revize",
+					Comment:      rev.Description,
+					RevisionDate: rev.StartTime,
+					Status:       rev.Status,
+				}
+				videos[i].RevisionHistory = append(videos[i].RevisionHistory, record)
+			}
+		}
 	}
 
 	if len(videos) == 0 {

@@ -705,6 +705,360 @@
             color: #757575;
             font-weight: 500;
         }
+
+        /* Review section styles */
+        .reviews-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            background: #fff;
+        }
+
+        .review-item {
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+        }
+
+        .admin-review {
+            background: #fff5f5;
+            border-color: #dc3545;
+            border-left: 4px solid #dc3545;
+        }
+        .reviews-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .reviews-title {
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .reviews-scroll {
+            padding-right: 10px;
+        }
+
+        .reviews-scroll::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .reviews-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 5px;
+        }
+
+        .reviews-scroll::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 5px;
+        }
+
+        .review-item {
+            background: white;
+            border-radius: 6px;
+            padding: 0.75rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .review-item.admin-review {
+            border-left: 3px solid #dc3545;
+        }
+
+        .review-item.revision-item {
+            border-left: 3px solid #ffc107;
+        }
+
+        .review-header {
+            margin-bottom: 0.5rem;
+        }
+
+        .review-content {
+            color: #495057;
+            font-size: 0.9rem;
+        }
+
+        .action-buttons {
+            min-width: 180px;
+        }
+
+        .action-buttons .btn {
+            white-space: nowrap;
+        }
+        .action-buttons {
+            min-width: 180px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .action-buttons .btn {
+            width: 100%;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .action-buttons .btn i {
+            font-size: 1rem;
+        }
+
+        /* Videoyu Görüntüle butonu */
+        .action-buttons .btn-primary {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+            box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
+        }
+
+        .action-buttons .btn-primary:hover {
+            background: linear-gradient(135deg, #1E88E5, #1565C0);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(33, 150, 243, 0.4);
+        }
+
+        /* Revizyon İste butonu */
+        .action-buttons .btn-warning {
+            background: linear-gradient(135deg, #FFA726, #FB8C00);
+            color: white;
+            box-shadow: 0 2px 4px rgba(255, 167, 38, 0.3);
+        }
+
+        .action-buttons .btn-warning:hover {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 167, 38, 0.4);
+        }
+
+        /* Onayla butonu */
+        .action-buttons .btn-success {
+            background: linear-gradient(135deg, #66BB6A, #43A047);
+            color: white;
+            box-shadow: 0 2px 4px rgba(102, 187, 106, 0.3);
+        }
+
+        .action-buttons .btn-success:hover {
+            background: linear-gradient(135deg, #4CAF50, #388E3C);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 187, 106, 0.4);
+        }
+
+        /* Buton aktif değilken */
+        .action-buttons .btn:disabled {
+            background: #E0E0E0;
+            color: #9E9E9E;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* Buton tıklama animasyonu */
+        .action-buttons .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* Buton container'ı için responsive tasarım */
+        @media (max-width: 768px) {
+            .action-buttons {
+                position: static !important;
+                width: 100%;
+                margin-top: 1rem;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .action-buttons .btn {
+                flex: 1;
+                min-width: 120px;
+            }
+        }
+
+        .card-body {
+            position: relative;
+            padding-right: 200px; /* Sağ tarafta butonlar için yer aç */
+        }
+
+        @media (max-width: 768px) {
+            .card-body {
+                padding-right: 1.5rem;
+            }
+            
+            .action-buttons {
+                position: static !important;
+                margin-top: 1rem;
+                width: 100%;
+            }
+        }
+
+        /* Action buttons - Yatay düzen için güncellenen stiller */
+        .action-buttons {
+            min-width: 180px;
+            display: flex;
+            flex-direction: row; /* Dikey yerine yatay sıralama */
+            gap: 8px;
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: auto; /* Genişliği otomatik ayarla */
+        }
+
+        .action-buttons .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: auto; /* Genişliği içeriğe göre ayarla */
+            white-space: nowrap;
+        }
+
+        /* Responsive düzen için medya sorgusu */
+        @media (max-width: 768px) {
+            .action-buttons {
+                position: static;
+                width: 100%;
+                margin-top: 1rem;
+                flex-wrap: wrap; /* Küçük ekranlarda sarma */
+                justify-content: flex-end;
+            }
+
+            .action-buttons .btn {
+                flex: 0 1 auto; /* Butonları içeriğe göre boyutlandır */
+            }
+
+            .card-body {
+                padding-right: 1.5rem;
+            }
+        }
+
+        /* Add these new styles for completed videos section */
+        .completed-video-card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            background: white;
+            overflow: hidden;
+        }
+
+        .completed-video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .completed-video-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .completed-video-body {
+            padding: 1.5rem;
+        }
+
+        .completed-video-info {
+            margin-bottom: 1.5rem;
+        }
+
+        .completed-video-info p {
+            margin-bottom: 0.5rem;
+            color: #495057;
+        }
+
+        .completed-video-info i {
+            width: 20px;
+            color: #0d6efd;
+            margin-right: 8px;
+        }
+
+        .reviews-container {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-top: 1rem;
+        }
+
+        .video-type-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .video-type-badge.video {
+            background: #e3f2fd;
+            color: #0d47a1;
+            border: 1px solid #90caf9;
+        }
+
+        .video-type-badge.software {
+            background: #e8f5e9;
+            color: #1b5e20;
+            border: 1px solid #a5d6a7;
+        }
+
+        .action-buttons-container {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .action-button {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .action-button i {
+            font-size: 1.1rem;
+        }
+
+        .action-button.view {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+        }
+
+        .action-button.revision {
+            background: linear-gradient(135deg, #FFA726, #FB8C00);
+            color: white;
+        }
+
+        .action-button.approve {
+            background: linear-gradient(135deg, #66BB6A, #43A047);
+            color: white;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -936,72 +1290,53 @@
             }
 
             return videos.map(video => `
-                <div class="col-12 mb-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h5 class="card-title mb-1">
-                                        ${video.employeeName}
-                                        ${video.workType === 'revize' ? 
-                                            '<span class="badge bg-warning ms-2">Revize</span>' : ''}
-                                        ${video.revisionStatus === 'approved' ? 
-                                            '<span class="badge bg-success ms-2">Onaylandı</span>' : 
-                                         video.workType === 'revize' && video.status === 'completed' ? 
-                                            '<span class="badge bg-info ms-2">Revize Edildi</span>' :
-                                         video.revisionStatus === 'needs_revision' ?
-                                            '<span class="badge bg-warning ms-2">Revizyon Gerekli</span>' : ''}
-                                    </h5>
-                                    <p class="text-muted mb-2">
-                                        <small>
-                                            <i class="bi bi-clock me-1"></i>
-                                            ${formatTime(video.startTime)} - ${formatTime(video.endTime)}
-                                            (${video.duration})
-                                        </small>
-                                    </p>
-                                    <p class="mb-2">${video.description}</p>
-                                    ${video.revisionNote ? `
-                                        <div class="alert alert-warning mb-2">
-                                            <strong>Revizyon Notu:</strong><br>
-                                            ${video.revisionNote}
-                                        </div>
-                                    ` : ''}
-                                    ${video.reviews && video.reviews.length > 0 ? `
-                                        <div class="alert alert-info mb-2">
-                                            <strong>İnceleme Yorumları:</strong><br>
-                                            ${video.reviews.map(review => `
-                                                <div class="mt-2">
-                                                    <small class="text-muted">${formatTime(review.createdAt)}</small><br>
-                                                    ${review.comment}
+                <div class="col-12 mb-4">
+                    <div class="completed-video-card">
+                        <div class="completed-video-header">
+                            <h5 class="mb-0">${video.employeeName}</h5>
+                            <span class="video-type-badge ${video.workType}">${video.workType === 'video' ? 'Video' : 'Yazılım'}</span>
+                        </div>
+                        <div class="completed-video-body">
+                            <div class="completed-video-info">
+                                <p><i class="bi bi-clock"></i> Tamamlanma: ${formatTime(video.endTime)}</p>
+                                <p><i class="bi bi-card-text"></i> ${video.description}</p></div>
+
+                            <div class="reviews-container">
+                                <h6 class="mb-3">
+                                    <i class="bi bi-chat-square-text me-2"></i>
+                                    İnceleme Geçmişi
+                                </h6>
+                                <div class="reviews-scroll" style="max-height: 200px; overflow-y: auto;">
+                                    ${video.reviews && video.reviews.length > 0 ? 
+                                        video.reviews.map(review => `
+                                            <div class="review-item ${review.reviewerId === 'admin' ? 'admin-review' : ''} mb-2">
+                                                <div class="review-header">
+                                                    <strong>${review.reviewerName}</strong>
+                                                    <small class="text-muted">${formatTime(review.createdAt)}</small>
                                                 </div>
-                                            `).join('')}
-                                        </div>
-                                    ` : ''}
+                                                <p class="review-content mt-1 mb-0">${review.comment}</p>
+                                            </div>
+                                        `).join('') : 
+                                        '<p class="text-muted mb-0">Henüz inceleme yapılmamış</p>'
+                                    }
                                 </div>
-                                <div class="d-flex gap-2">
-                                    ${video.videoLink ? `
-                                        <a href="${video.videoLink}" target="_blank" 
-                                           class="btn btn-primary btn-sm">
-                                            <i class="bi bi-play-circle me-1"></i>
-                                            Videoyu Görüntüle
-                                        </a>
-                                    ` : ''}
-                                    <button class="btn btn-info btn-sm" onclick="addComment('${video.id}')">
-                                        <i class="bi bi-chat-dots me-1"></i>
-                                        Yorum Yap
-                                    </button>
-                                    ${video.revisionStatus === 'needs_revision' ? `
-                                        <button class="btn btn-success btn-sm" onclick="approveVideo('${video.id}')">
-                                            <i class="bi bi-check-circle me-1"></i>
-                                            Onayla
-                                        </button>
-                                    ` : video.workType === 'revize' && video.status === 'completed' ? `
-                                        <button class="btn btn-success btn-sm" onclick="approveVideo('${video.id}')">
-                                            <i class="bi bi-check-circle me-1"></i>
-                                            Onayla
-                                        </button>
-                                    ` : ''}
-                                </div>
+                            </div>
+
+                            <div class="action-buttons-container">
+                                ${video.videoLink ? `
+                                    <a href="${video.videoLink}" target="_blank" class="action-button view">
+                                        <i class="bi bi-play-circle"></i>
+                                        Videoyu Görüntüle
+                                    </a>
+                                ` : ''}
+                                <button class="action-button revision" onclick="addComment('${video.id}')">
+                                    <i class="bi bi-chat-square-text"></i>
+                                    Revizyon İste
+                                </button>
+                                <button class="action-button approve" onclick="approveVideo('${video.id}')">
+                                    <i class="bi bi-check-circle"></i>
+                                    Onayla
+                                </button>
                             </div>
                         </div>
                     </div>
