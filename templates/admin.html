@@ -1059,6 +1059,105 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
+
+        /* Add new styles for completed videos section */
+        .completed-video-card {
+            height: 100%;
+            margin-bottom: 0;
+        }
+
+        .completed-videos-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 992px) {
+            .completed-videos-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .completed-video-body {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .reviews-container {
+            flex: 1;
+            margin-bottom: 1rem;
+        }
+
+        .action-buttons-container {
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        /* Update action buttons in completed video card */
+        .action-buttons-container {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .action-button {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            cursor: pointer;
+            color: white;
+        }
+
+        .action-button i {
+            font-size: 1.1rem;
+        }
+
+        .action-button.view {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+        }
+
+        .action-button.revision {
+            background: linear-gradient(135deg, #FFA726, #FB8C00);
+        }
+
+        .action-button.approve {
+            background: linear-gradient(135deg, #66BB6A, #43A047);
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            color: white;
+            text-decoration: none;
+        }
+
+        .action-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .action-buttons-container {
+                flex-direction: column;
+            }
+            
+            .action-button {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -1108,7 +1207,7 @@
                 <div class="section-header">
                     <h4 class="section-title">Tamamlanmış Videolar</h4>
                 </div>
-                <div id="completedVideos" class="row g-4">
+                <div id="completedVideos" class="completed-videos-container">
                     <!-- Completed videos will be loaded here -->
                 </div>
             </div>
@@ -1290,54 +1389,54 @@
             }
 
             return videos.map(video => `
-                <div class="col-12 mb-4">
-                    <div class="completed-video-card">
-                        <div class="completed-video-header">
-                            <h5 class="mb-0">${video.employeeName}</h5>
-                            <span class="video-type-badge ${video.workType}">${video.workType === 'video' ? 'Video' : 'Yazılım'}</span>
-                        </div>
-                        <div class="completed-video-body">
-                            <div class="completed-video-info">
-                                <p><i class="bi bi-clock"></i> Tamamlanma: ${formatTime(video.endTime)}</p>
-                                <p><i class="bi bi-card-text"></i> ${video.description}</p></div>
+                <div class="completed-video-card">
+                    <div class="completed-video-header">
+                        <h5 class="mb-0">${video.employeeName}</h5>
+                        <span class="video-type-badge ${video.workType}">${video.workType === 'video' ? 'Video' : 'Yazılım'}</span>
+                    </div>
+                    <div class="completed-video-body">
+                        <div class="completed-video-info">
+                            <p><i class="bi bi-clock"></i> Tamamlanma: ${formatTime(video.endTime)}</p>
+                            <p><i class="bi bi-hourglass-split"></i> Başlangıç: ${formatTime(video.startTime)}</p>
+                            <p><i class="bi bi-card-text"></i> ${video.description}</p></div>
 
-                            <div class="reviews-container">
-                                <h6 class="mb-3">
-                                    <i class="bi bi-chat-square-text me-2"></i>
-                                    İnceleme Geçmişi
-                                </h6>
-                                <div class="reviews-scroll" style="max-height: 200px; overflow-y: auto;">
-                                    ${video.reviews && video.reviews.length > 0 ? 
-                                        video.reviews.map(review => `
-                                            <div class="review-item ${review.reviewerId === 'admin' ? 'admin-review' : ''} mb-2">
-                                                <div class="review-header">
-                                                    <strong>${review.reviewerName}</strong>
-                                                    <small class="text-muted">${formatTime(review.createdAt)}</small>
-                                                </div>
-                                                <p class="review-content mt-1 mb-0">${review.comment}</p>
+                        <div class="reviews-container">
+                            <h6 class="mb-3">
+                                <i class="bi bi-chat-square-text me-2"></i>
+                                İnceleme Geçmişi
+                            </h6>
+                            <div class="reviews-scroll" style="max-height: 200px; overflow-y: auto;">
+                                ${(video.reviews && video.reviews.length > 0) || 
+                                  (video.originalVideoId && video.originalReviews && video.originalReviews.length > 0) ? 
+                                    getAllReviews(video).map(review => `
+                                        <div class="review-item ${review.reviewerId === 'admin' ? 'admin-review' : ''} mb-2">
+                                            <div class="review-header">
+                                                <strong>${review.reviewerName}</strong>
+                                                <small class="text-muted">${formatTime(review.createdAt)}</small>
                                             </div>
-                                        `).join('') : 
-                                        '<p class="text-muted mb-0">Henüz inceleme yapılmamış</p>'
-                                    }
-                                </div>
+                                            <p class="review-content mt-1 mb-0">${review.comment}</p>
+                                        </div>
+                                    `).join('') : 
+                                    '<p class="text-muted mb-0">Henüz inceleme yapılmamış</p>'
+                                }
                             </div>
+                        </div>
 
-                            <div class="action-buttons-container">
-                                ${video.videoLink ? `
-                                    <a href="${video.videoLink}" target="_blank" class="action-button view">
-                                        <i class="bi bi-play-circle"></i>
-                                        Videoyu Görüntüle
-                                    </a>
-                                ` : ''}
-                                <button class="action-button revision" onclick="addComment('${video.id}')">
-                                    <i class="bi bi-chat-square-text"></i>
-                                    Revizyon İste
-                                </button>
-                                <button class="action-button approve" onclick="approveVideo('${video.id}')">
-                                    <i class="bi bi-check-circle"></i>
-                                    Onayla
-                                </button>
-                            </div>
+                        <div class="action-buttons-container">
+                            ${video.videoLink ? `
+                                <a href="${video.videoLink}" target="_blank" class="action-button view">
+                                    <i class="bi bi-play-circle"></i>
+                                    Videoyu Görüntüle
+                                </a>
+                            ` : ''}
+                            <button class="action-button revision" onclick="addComment('${video.id}')">
+                                <i class="bi bi-chat-square-text"></i>
+                                Revizyon İste
+                            </button>
+                            <button class="action-button approve" onclick="approveVideo('${video.id}')">
+                                <i class="bi bi-check-circle"></i>
+                                Onayla
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1754,35 +1853,72 @@
             const container = document.getElementById('statsContainer');
             container.innerHTML = '';
 
-            for (const employee of employees) {
-                try {
-                    const response = await fetch(`/api/work-stats/${employee.id}`);
-                    const stats = await response.json();
+            try {
+                // Silinen personeller hariç tüm personelleri getir
+                const response = await fetch('/api/employees');
+                const data = await response.json();
+                
+                if (data.type === 'success' && Array.isArray(data.data)) {
+                    // Aktif personeller için istatistikleri yükle
+                    for (const employee of data.data) {
+                        try {
+                            const statsResponse = await fetch(`/api/work-stats/${employee.id}`);
+                            const stats = await statsResponse.json();
 
-                    const card = document.createElement('div');
-                    card.className = 'col-md-4';
-                    card.innerHTML = `
-                        <div class="card stats-card">
-                            <div class="card-body">
-                                <h5 class="card-title">${employee.name}</h5>
-                                <div class="mt-3">
-                                    <p class="mb-2">
-                                        <strong>Toplam İş:</strong> ${stats.totalWorks}
-                                    </p>
-                                    <p class="mb-2">
-                                        <strong>Ortalama Video Süresi:</strong> ${stats.averageVideoDuration ? formatDuration(parseFloat(stats.averageVideoDuration)) : 'Veri yok'}
-                                    </p>
-                                    <p class="mb-0">
-                                        <strong>Ortalama Yazılım Süresi:</strong> ${stats.averageSoftwareDuration ? formatDuration(parseFloat(stats.averageSoftwareDuration)) : 'Veri yok'}
-                                    </p>
+                            const card = document.createElement('div');
+                            card.className = 'col-md-4';
+                            card.innerHTML = `
+                                <div class="card stats-card ${employee.type}">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            ${employee.name}
+                                            <span class="badge ${employee.type === 'intern' ? 'bg-success' : 'bg-primary'} float-end">
+                                                ${employee.type === 'intern' ? 'Stajyer' : 'Personel'}
+                                            </span>
+                                        </h5>
+                                        <div class="mt-3">
+                                            <p class="mb-2">
+                                                <strong>Toplam İş:</strong> ${stats.totalWorks}
+                                            </p>
+                                            <p class="mb-2">
+                                                <strong>Ortalama Video Süresi:</strong> 
+                                                ${stats.averageVideoDuration ? stats.averageVideoDuration : 'Veri yok'}
+                                            </p>
+                                            <p class="mb-2">
+                                                <strong>Ortalama Revizyon Süresi:</strong> 
+                                                ${stats.averageRevisionDuration ? stats.averageRevisionDuration : 'Veri yok'}
+                                            </p>
+                                            <p class="mb-0">
+                                                <strong>Ortalama Yazılım Süresi:</strong> 
+                                                ${stats.averageSoftwareDuration ? stats.averageSoftwareDuration : 'Veri yok'}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
+                            `;
+                            container.appendChild(card);
+                        } catch (error) {
+                            console.error('Error loading stats for employee:', employee.id, error);
+                        }
+                    }
+                } else {
+                    container.innerHTML = `
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                Henüz personel bulunmuyor.
                             </div>
                         </div>
                     `;
-                    container.appendChild(card);
-                } catch (error) {
-                    console.error('Error loading stats:', error);
                 }
+            } catch (error) {
+                console.error('Error loading employees:', error);
+                container.innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-danger">
+                            İstatistikler yüklenirken bir hata oluştu.
+                        </div>
+                    </div>
+                `;
             }
         }
 
@@ -1965,7 +2101,13 @@
 
         function formatTime(dateString) {
             const date = new Date(dateString);
-            return date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+            return date.toLocaleString('tr-TR', { 
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
         }
 
         function showAlert(title, text, icon) {
@@ -2028,6 +2170,26 @@
             } catch (error) {
                 showAlert('Hata', error.message, 'error');
             }
+        }
+
+        // Add this helper function to combine all reviews
+        function getAllReviews(video) {
+            let reviews = [];
+            
+            // Add current video reviews
+            if (video.reviews && video.reviews.length > 0) {
+                reviews = reviews.concat(video.reviews);
+            }
+            
+            // Add original video reviews if this is a revision
+            if (video.originalVideoId && video.originalReviews && video.originalReviews.length > 0) {
+                reviews = reviews.concat(video.originalReviews);
+            }
+            
+            // Sort reviews by date
+            reviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            return reviews;
         }
     </script>
 </body>

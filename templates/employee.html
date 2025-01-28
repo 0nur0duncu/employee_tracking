@@ -1494,7 +1494,7 @@
                                     <a href="${work.videoLink}" target="_blank" class="video-action-btn view-btn">
                                         <i class="bi bi-play-circle"></i> Videoyu Görüntüle
                                     </a>
-                                    ${work.employeeId === currentEmployeeId && work.reviews?.length > 0 ? `
+                                    ${work.employeeId === currentEmployeeId && work.reviews?.length > 0 && work.revisionStatus === 'needs_revision' ? `
                                         <button class="video-action-btn revise-btn" 
                                                 onclick="startRevision('${work.id}')"
                                                 id="revise-btn-${work.id}"

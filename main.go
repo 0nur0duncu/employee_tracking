@@ -31,6 +31,7 @@ type Employee struct {
 type WorkStats struct {
 	AverageVideoDuration    string `json:"averageVideoDuration"`
 	AverageSoftwareDuration string `json:"averageSoftwareDuration"`
+	AverageRevisionDuration string `json:"averageRevisionDuration"` // Revizyon süresi eklendi
 	TotalWorks              int    `json:"totalWorks"`
 }
 
@@ -54,6 +55,7 @@ type Work struct {
 	RevisedBy           primitive.ObjectID `json:"revisedBy,omitempty" bson:"revisedBy,omitempty"`             // Employee who did the revision
 	RevisedByName       string             `json:"revisedByName,omitempty" bson:"revisedByName,omitempty"`     // Name of employee who did the revision
 	ReviewedVideoID     primitive.ObjectID `json:"reviewedVideoId,omitempty" bson:"reviewedVideoId,omitempty"` // ID of the video being reviewed
+	OriginalVideoID     primitive.ObjectID `json:"originalVideoId,omitempty" bson:"originalVideoId,omitempty"` // Add this field
 	Reviews             []Review           `json:"reviews" bson:"reviews"`                                     // Reviews for this video
 	StartTime           time.Time          `json:"startTime" bson:"startTime"`
 	EndTime             time.Time          `json:"endTime,omitempty" bson:"endTime,omitempty"`
@@ -296,6 +298,7 @@ func getEmployeeStats(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	// Tüm tamamlanmış işleri getir
 	completedWorks, err := db.Collection("works").Find(ctx, bson.M{
 		"employeeId": employeeId,
 		"status":     "completed",
@@ -312,16 +315,29 @@ func getEmployeeStats(c *fiber.Ctx) error {
 
 	var videoWorks []Work
 	var softwareWorks []Work
+	var revisionWorks []Work
+
 	for _, work := range works {
-		if work.WorkType == "video" {
+		if isWeekend(work.StartTime) || isWeekend(work.EndTime) {
+			continue // Haftasonu işleri hesaplamaya dahil etme
+		}
+
+		// Mesai saatlerine göre düzeltilmiş süreyi hesapla
+		adjustedDuration := calculateWorkDuration(work.StartTime, work.EndTime)
+		work.DurationMinutes = adjustedDuration
+
+		switch work.WorkType {
+		case "video":
 			videoWorks = append(videoWorks, work)
-		} else {
+		case "revize":
+			revisionWorks = append(revisionWorks, work)
+		case "software":
 			softwareWorks = append(softwareWorks, work)
 		}
 	}
 
 	stats := WorkStats{
-		TotalWorks: len(works),
+		TotalWorks: len(videoWorks) + len(softwareWorks) + len(revisionWorks),
 	}
 
 	if len(videoWorks) > 0 {
@@ -342,7 +358,111 @@ func getEmployeeStats(c *fiber.Ctx) error {
 		stats.AverageSoftwareDuration = formatDuration(avgMinutes)
 	}
 
+	if len(revisionWorks) > 0 {
+		var totalMinutes int
+		for _, work := range revisionWorks {
+			totalMinutes += work.DurationMinutes
+		}
+		avgMinutes := totalMinutes / len(revisionWorks)
+		stats.AverageRevisionDuration = formatDuration(avgMinutes)
+	}
+
 	return c.JSON(stats)
+}
+
+// Haftasonu kontrolü
+func isWeekend(t time.Time) bool {
+	weekday := t.Weekday()
+	return weekday == time.Saturday || weekday == time.Sunday
+}
+
+// Mesai saatlerine göre çalışma süresini hesapla
+func calculateWorkDuration(start, end time.Time) int {
+	// Başlangıç ve bitiş zamanlarının aynı gün olup olmadığını kontrol et
+	startDate := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
+	endDate := time.Date(end.Year(), end.Month(), end.Day(), 0, 0, 0, 0, end.Location())
+
+	// Mesai saatleri
+	workStartHour := 9
+	workEndHour := 18
+	lunchStartHour := 12
+	lunchEndHour := 13
+
+	var totalMinutes int
+
+	if startDate.Equal(endDate) {
+		// Aynı gün içindeki iş
+		return calculateSingleDayDuration(start, end, workStartHour, workEndHour, lunchStartHour, lunchEndHour)
+	} else {
+		// İlk gün için süre hesaplama
+		firstDayEnd := time.Date(start.Year(), start.Month(), start.Day(), workEndHour, 0, 0, 0, start.Location())
+		totalMinutes += calculateSingleDayDuration(start, firstDayEnd, workStartHour, workEndHour, lunchStartHour, lunchEndHour)
+
+		// Son gün için süre hesaplama
+		lastDayStart := time.Date(end.Year(), end.Month(), end.Day(), workStartHour, 0, 0, 0, end.Location())
+		totalMinutes += calculateSingleDayDuration(lastDayStart, end, workStartHour, workEndHour, lunchStartHour, lunchEndHour)
+
+		// Aradaki tam günler için süre hesaplama (eğer varsa)
+		currentDate := startDate.AddDate(0, 0, 1)
+		for currentDate.Before(endDate) {
+			if !isWeekend(currentDate) {
+				// Tam gün mesai süresi: 8 saat (öğle arası hariç)
+				totalMinutes += 8 * 60
+			}
+			currentDate = currentDate.AddDate(0, 0, 1)
+		}
+	}
+
+	return totalMinutes
+}
+
+// Tek gün içindeki çalışma süresini hesapla
+func calculateSingleDayDuration(start, end time.Time, workStartHour, workEndHour, lunchStartHour, lunchEndHour int) int {
+	// Başlangıç saatini mesai başlangıcından önce ise mesai başlangıcına ayarla
+	adjustedStart := start
+	if start.Hour() < workStartHour {
+		adjustedStart = time.Date(start.Year(), start.Month(), start.Day(), workStartHour, 0, 0, 0, start.Location())
+	}
+
+	// Bitiş saatini mesai bitişinden sonra ise mesai bitişine ayarla
+	adjustedEnd := end
+	if end.Hour() >= workEndHour {
+		adjustedEnd = time.Date(end.Year(), end.Month(), end.Day(), workEndHour, 0, 0, 0, end.Location())
+	}
+
+	if adjustedEnd.Before(adjustedStart) {
+		return 0
+	}
+
+	duration := 0
+	currentTime := adjustedStart
+
+	for currentTime.Before(adjustedEnd) {
+		hour := currentTime.Hour()
+
+		// Öğle arası kontrolü
+		if hour >= lunchStartHour && hour < lunchEndHour {
+			currentTime = time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(),
+				lunchEndHour, 0, 0, 0, currentTime.Location())
+			continue
+		}
+
+		if hour >= workStartHour && hour < workEndHour {
+			// Her saat için dakika ekle
+			nextHour := currentTime.Add(time.Hour)
+			if nextHour.After(adjustedEnd) {
+				// Son kısmi saat için dakika hesapla
+				duration += int(adjustedEnd.Sub(currentTime).Minutes())
+			} else {
+				// Tam saat için 60 dakika ekle
+				duration += 60
+			}
+		}
+
+		currentTime = currentTime.Add(time.Hour)
+	}
+
+	return duration
 }
 
 func getDailyTimeline(c *fiber.Ctx) error {
@@ -467,6 +587,31 @@ func createWork(c *fiber.Ctx) error {
 
 	work.ID = primitive.NewObjectID()
 	work.Status = "in_progress"
+
+	// Set OriginalVideoID for revisions
+	if work.WorkType == "revize" && !work.ReviewedVideoID.IsZero() {
+		// Get original video's information
+		var originalVideo Work
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		err := db.Collection("works").FindOne(ctx, bson.M{"_id": work.ReviewedVideoID}).Decode(&originalVideo)
+		if err == nil {
+			// Only copy reviews if the original video has a needs_revision status
+			if originalVideo.RevisionStatus == "needs_revision" {
+				work.Reviews = originalVideo.Reviews
+				work.OriginalVideoID = work.ReviewedVideoID
+			} else {
+				// If the video doesn't need revision, return an error
+				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+					"error": "Bu video için revizyon gerekmiyor",
+					"type":  "warning",
+					"title": "Uyarı",
+					"text":  "Bu video için henüz revizyon talebi oluşturulmamış.",
+				})
+			}
+		}
+	}
 
 	if work.WorkType == "video" {
 		work.WorkStatus = "pending_review"
